@@ -19,11 +19,7 @@ namespace GKToy
         public Vector2 pos;
         public int width;
         public int height;
-        [ExportClient]
-        [ExportServer]
         public string className;
-        [ExportClient]
-        [ExportServer]
         public string name;
         public string comment;
         public Rect rect;
@@ -400,6 +396,8 @@ namespace GKToy
         public int previous;
         [JsonProperty]
         public int next;
+        [JsonProperty]
+        public int nextType;
         /// <summary>
         /// 链接目标可为节点也可为节点参数, 如果key不为空为该节点参数.
         /// </summary>
@@ -412,7 +410,8 @@ namespace GKToy
 		public Link(int _id, List<Vector2> _points, bool _isFirstVertical, int _previous, int _next, string _parmKey = "")
 		{
 			id = _id;
-			points = new List<Vector2>(_points);
+            nextType = 1;
+            points = new List<Vector2>(_points);
 			isFirstVertical = _isFirstVertical;
             previous = _previous;
 			next = _next;

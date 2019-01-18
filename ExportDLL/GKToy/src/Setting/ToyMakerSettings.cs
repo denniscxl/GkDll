@@ -77,7 +77,7 @@ public class ToyMakerSettings : ScriptableObject
 		[HideInInspector]
 		public float _commentContentMargin;
 		// 连接点击范围扩展.
-		public float linkClickOffset = 3;
+		public float _linkClickOffset = 3;
 		// 图标.
 		public Texture _defaultIcon;
 		public Texture _actionIcon;
@@ -87,6 +87,9 @@ public class ToyMakerSettings : ScriptableObject
 		public Texture _activatedMark;
 		public Texture _successMark;
 		public Texture _failMark;
+
+        // 默认宿主存储路径.
+        public string _defaultOverlordPath = "";
 	}
     public  ToyMakerBase toyMakerBase = new ToyMakerBase();
 }

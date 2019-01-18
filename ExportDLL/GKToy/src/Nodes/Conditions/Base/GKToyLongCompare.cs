@@ -7,7 +7,7 @@ namespace GKToy
     /// 长整型比较.
     /// </summary>
 	[NodeTypeTree("条件/基本/长整型比较")]
-    [NodeTypeTree("Condition/Base/IntCompare", "English")]
+    [NodeTypeTree("Condition/Base/LongCompare", "English")]
 	[NodeDescription("判断两长整型数之间的关系是否满足条件\n若不满足，走第一条连接；若满足，走其他连接")]
 	[NodeDescription("Check whether the relation of two long integers meet requirement.\nIf true, go to the first link, or go to others.", "English")]
     public class GKToyLongCompare : GKToyNode

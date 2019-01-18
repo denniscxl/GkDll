@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GKBase;
 
 namespace GKToy
 {
@@ -25,10 +26,11 @@ namespace GKToy
                 return 0;
 
             base.Update();
-#if UNITY_EDITOR
-            ResetAfterState();
-            machine.ClearResetList();
-#endif
+            if (GKEditor.isUnityEditor())
+            {
+                ResetAfterState();
+                machine.ClearResetList();
+            }
             NextAll();
             return 0;
         }

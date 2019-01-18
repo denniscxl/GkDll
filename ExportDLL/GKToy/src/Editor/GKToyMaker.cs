@@ -26,13 +26,13 @@ namespace GKToy
                 return _settings;
             }
         }
-        static public ToyMakerData Data
+        static public GKToyLocalizationData Data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/ToyMakerData.asset") as ToyMakerData;
+                    _data = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/GKToyLocalizationData.asset") as GKToyLocalizationData;
                     if (null == _data)
                         Debug.LogError("Load maker data faile.");
                 }
@@ -164,7 +164,7 @@ namespace GKToy
         // 语言类型.
         static protected LanguageType _language = LanguageType.Chinese;
 
-        static ToyMakerData _data;
+        static GKToyLocalizationData _data;
         // 节点种类树根节点.
         static TreeNode root = null;
 
@@ -240,6 +240,7 @@ namespace GKToy
         public static void MenuItemWindow()
         {
             instance = GetWindow<GKToyMaker>(_GetLocalization("Neuron"), false);
+            
         }
         #endregion
 
@@ -248,7 +249,7 @@ namespace GKToy
         {
             if (null == instance)
             {
-                instance = GetWindow<GKToyMaker>(_GetLocalization("Neuron"), false);
+                instance = GetWindow<GKToyMaker>(_GetLocalization("Neuron"), true);
                 _Init();
                 wantsMouseMove = true;
                 minSize = new Vector2(toyMakerBase._minWidth, toyMakerBase._minHeight);
@@ -277,7 +278,14 @@ namespace GKToy
         void OnDestroy()
         {
             if (null != _overlord)
-                _overlord.Save();
+            {
+                if (EditorUtility.DisplayDialog(_GetLocalization("Save node"), 
+                    _GetLocalization("Save data before proceeding?"), _GetLocalization("OK"), _GetLocalization("Cancel")))
+                {
+                    _overlord.Save();
+                    _overlord.Backup();
+                }
+            }
             instance = null;
         }
 
@@ -480,6 +488,65 @@ namespace GKToy
                             case 2:
                                 GKToyMakerDialogueCom.PopupTaskWindow();
                                 GKToyMakerDialogueCom.InitSubData((GKToyDialogue)node);
+                                break;
+                            // Sub task tree.
+                            case 3:
+                                string destPath = "";
+                                int id = ((GKToyTaskSubTree)node).SubTreeID.Value;
+                                if ( 0 == id)
+                                {
+                                    destPath = EditorUtility.SaveFilePanelInProject(_GetLocalization("Save path"), id.ToString(), "Asset", _GetLocalization("Select save path."));
+
+                                    // 创建新宿主.
+                                    if (string.IsNullOrEmpty(toyMakerBase._defaultOverlordPath))
+                                    {
+                                        toyMakerBase._defaultOverlordPath = Path.GetDirectoryName(destPath);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(destPath))
+                                    {
+                                        _overlord.Save();
+                                        _overlord.Backup();
+                                        _CreateData(destPath);
+                                    }
+                                }
+                                else
+                                {
+                                    // 切换目标宿主.
+                                    if( string.IsNullOrEmpty(toyMakerBase._defaultOverlordPath))
+                                    {
+                                        destPath = EditorUtility.SaveFilePanelInProject(_GetLocalization("Load path"), id.ToString(), "Prefab", _GetLocalization("Select overlord load path."));
+                                        toyMakerBase._defaultOverlordPath = Path.GetDirectoryName(destPath); ;
+                                    }
+                                    else
+                                    {
+                                        destPath = string.Format("{0}/{1}.Prefab", toyMakerBase._defaultOverlordPath, id.ToString());
+                                    }
+
+                                    if (!string.IsNullOrEmpty(toyMakerBase._defaultOverlordPath))
+                                    {
+                                        // 加载对象并切换.
+                                        GKToyBaseOverlord bo = (GKToyBaseOverlord) AssetDatabase.LoadAssetAtPath(destPath, typeof(GKToyBaseOverlord));
+                                        if(null != bo)
+                                        {
+                                            Selection.activeObject = bo;
+                                        }
+                                        else
+                                        {
+                                            destPath = string.Format("{0}/{1}.Asset", toyMakerBase._defaultOverlordPath, id.ToString());
+
+                                            // 创建新对象.
+                                            _overlord.Save();
+                                            _overlord.Backup();
+                                            _CreateData(destPath);
+                                        }
+                                    }
+                                }
+                                break;
+                            // Dialogue condition.
+                            case 4:
+                                GKToyMakerDialogueConditionCom.PopupTaskWindow();
+                                GKToyMakerDialogueConditionCom.InitSubData((GKToyDialogueCondition)node);
                                 break;
                             default:
                                 break;
@@ -694,15 +761,15 @@ namespace GKToy
                     {
                         bool isRightAngleVertical = 0 == (i & 1) ^ link.isFirstVertical;
                         Rect lineRect;
-                        float x = Mathf.Min(link.points[i].x, link.points[i + 1].x) - toyMakerBase.linkClickOffset;
-                        float y = Mathf.Min(link.points[i].y, link.points[i + 1].y) - toyMakerBase.linkClickOffset;
+                        float x = Mathf.Min(link.points[i].x, link.points[i + 1].x) - toyMakerBase._linkClickOffset;
+                        float y = Mathf.Min(link.points[i].y, link.points[i + 1].y) - toyMakerBase._linkClickOffset;
                         if (isRightAngleVertical)
                         {
-                            lineRect = new Rect(x, y, toyMakerBase.linkClickOffset * 2, Mathf.Abs(link.points[i].y - link.points[i + 1].y));
+                            lineRect = new Rect(x, y, toyMakerBase._linkClickOffset * 2, Mathf.Abs(link.points[i].y - link.points[i + 1].y));
                         }
                         else
                         {
-                            lineRect = new Rect(x, y, Mathf.Abs(link.points[i].x - link.points[i + 1].x), toyMakerBase.linkClickOffset * 2);
+                            lineRect = new Rect(x, y, Mathf.Abs(link.points[i].x - link.points[i + 1].x), toyMakerBase._linkClickOffset * 2);
                         }
                         if (lineRect.Contains(Event.current.mousePosition + _contentScrollPos))
                         {
@@ -952,6 +1019,13 @@ namespace GKToy
                 menu.AddItem(new GUIContent(_GetLocalization("Server")), false, _ExportGameData, 2);
                 menu.ShowAsContext();
             }
+            // 绘制快捷键按钮.
+            _tmpRect.width = 120;
+            _tmpRect.x -= _tmpRect.width;
+            if (GUI.Button(_tmpRect, _GetLocalization("Shortcut keys"), EditorStyles.toolbarButton))
+            {
+                GetWindow<GKToyMakerShortcuts>(true, _GetLocalization("Shortcut keys"), true);
+            }
             // 绘制虚拟节点选择按钮.
             if (1 == _selectNodes.Count && NodeType.VirtualNode == _selectNodes[0].nodeType && -1 != ((GKToyGroupLink)_selectNodes[0]).otherGroupId && 0 != _virtualNodeSources.Count)
             {
@@ -1052,8 +1126,7 @@ namespace GKToy
                 //每3根加粗.
                 if (i % 3 == 0)
                 {
-                    Handles.DrawLine(new Vector2(x1, y1 + space - 80 / Screen.dpi), new Vector3(x2, y1 + space - 80 / Screen.dpi));
-                    Handles.DrawLine(new Vector2(x1, y1 + space + 80 / Screen.dpi), new Vector3(x2, y1 + space + 80 / Screen.dpi));
+                    Handles.DrawLine(new Vector2(x1, y1 + space - 2 ), new Vector3(x2, y1 + space - 2 ));
                 }
                 Handles.DrawLine(new Vector2(x1, y1 + space), new Vector3(x2, y1 + space));
             }
@@ -1068,8 +1141,7 @@ namespace GKToy
                 //每3根加粗.
                 if (i % 3 == 0)
                 {
-                    Handles.DrawLine(new Vector2(x1 + space - 80 / Screen.dpi, y1), new Vector3(x1 + space - 80 / Screen.dpi, y2));
-                    Handles.DrawLine(new Vector2(x1 + space + 80 / Screen.dpi, y1), new Vector3(x1 + space + 80 / Screen.dpi, y2));
+                    Handles.DrawLine(new Vector2(x1 + space - 2, y1), new Vector3(x1 + space - 2, y2));
                 }
                 Handles.DrawLine(new Vector2(x1 + space, y1), new Vector3(x1 + space, y2));
             }
@@ -1080,7 +1152,7 @@ namespace GKToy
         /// <param name="dataType">数据类型：1-客户端，2-服务器</param>
         void _ExportGameData(object dataType)
         {
-            var destPath = EditorUtility.SaveFilePanelInProject("Save path", "", "json", "Select save path.");
+            var destPath = EditorUtility.SaveFilePanelInProject(_GetLocalization("Save path"), "", "json", _GetLocalization("Select save path."));
             if (string.IsNullOrEmpty(destPath))
                 return;
             // 存储数据源节点.
@@ -1382,11 +1454,10 @@ namespace GKToy
             GUILayout.BeginHorizontal();
             {
                 GUILayout.Label(_GetLocalization("Name") + " ", GUILayout.Height(toyMakerBase._lineHeight));
-                Name = GUILayout.TextField(Name, toyMakerBase._infoMaxLineChar, GUILayout.Height(toyMakerBase._lineHeight));
+                EditorGUILayout.TextField(Name,GUILayout.Height(toyMakerBase._lineHeight));
             }
             GUILayout.EndHorizontal();
-            GUILayout.Label(_GetLocalization("Comment"), GUILayout.Height(toyMakerBase._lineHeight));
-            CurRenderData.comment = GUILayout.TextArea(CurRenderData.comment, GUILayout.Height(toyMakerBase._lineHeight * 5));
+            EditorGUILayout.TextArea(CurRenderData.comment, GUILayout.Height(toyMakerBase._lineHeight * 5));
 
             GKEditor.DrawInspectorSeperator();
 
@@ -1451,7 +1522,7 @@ namespace GKToy
                 GUILayout.BeginVertical();
                 GUILayout.BeginHorizontal();
                 {
-                    TypeSearchContent = GUILayout.TextField(TypeSearchContent, toyMakerBase._infoMaxLineChar, "SearchTextField", GUILayout.Height(toyMakerBase._lineHeight));
+                    TypeSearchContent = EditorGUILayout.TextField(TypeSearchContent, new GUIStyle("SearchTextField"), GUILayout.Height(toyMakerBase._lineHeight));
                     if (GUILayout.Button("", "SearchCancelButton", GUILayout.Height(toyMakerBase._lineHeight)))
                     {
                         TypeSearchContent = string.Empty;
@@ -1568,7 +1639,7 @@ namespace GKToy
 
         static public string _GetLocalization(string key)
         {
-            ToyMakerData.LocalizationData ld = Data.GetLocalizationData(key);
+            GKToyLocalizationData.LocalizationData ld = Data.GetLocalizationData(key);
 
             if (null == ld)
                 return string.Empty;
@@ -1595,7 +1666,7 @@ namespace GKToy
             GUILayout.BeginHorizontal();
             {
                 GUILayout.Label(_GetLocalization("Name"), GUILayout.Width(40));
-                _newVariableName = GUILayout.TextField(_newVariableName, 12);
+                _newVariableName = EditorGUILayout.TextField(_newVariableName);
             }
             GUILayout.EndHorizontal();
 
@@ -1732,7 +1803,7 @@ namespace GKToy
         {
             GUILayout.BeginHorizontal();
             {
-                SearchContent = GUILayout.TextField(SearchContent, toyMakerBase._infoMaxLineChar, "SearchTextField", GUILayout.Height(toyMakerBase._lineHeight));
+                SearchContent = EditorGUILayout.TextField(SearchContent, new GUIStyle("SearchTextField"), GUILayout.Height(toyMakerBase._lineHeight));
                 if (GUILayout.Button("", "SearchCancelButton", GUILayout.Height(toyMakerBase._lineHeight)))
                 {
                     SearchContent = string.Empty;
@@ -2229,12 +2300,12 @@ namespace GKToy
             GUILayout.BeginHorizontal();
             {
                 GUILayout.Label(_GetLocalization("Name") + " ", GUILayout.Height(toyMakerBase._lineHeight));
-                node.name = GUILayout.TextField(node.name, toyMakerBase._infoMaxLineChar, GUILayout.Height(toyMakerBase._lineHeight));
+                node.name = EditorGUILayout.TextField(node.name, GUILayout.Height(toyMakerBase._lineHeight));
             }
             GUILayout.EndHorizontal();
 
             GUILayout.Label(_GetLocalization("Comment"), GUILayout.Height(toyMakerBase._lineHeight));
-            node.comment = GUILayout.TextArea(node.comment, GUILayout.Height(toyMakerBase._lineHeight * 5));
+            node.comment = EditorGUILayout.TextArea(node.comment, GUILayout.Height(toyMakerBase._lineHeight * 5));
             // 绘制节点属性.
             if (null != node.props && 0 != node.props.Length)
             {
@@ -3684,7 +3755,7 @@ namespace GKToy
                         }
                         break;
                     // 删除.
-                    case KeyCode.Delete:
+                    case KeyCode.T:
                         Event.current.Use();
                         if (EditorUtility.DisplayDialog(_GetLocalization("Confirmation"), _GetLocalization("Are you sure to delete selected node?"), _GetLocalization("OK"), _GetLocalization("Cancel")))
                             _RemoveSelectNodes();
@@ -3964,10 +4035,14 @@ namespace GKToy
             if (null == externalData)
                 return;
 
+            string myName = Path.GetFileNameWithoutExtension(path);
+
             // 创建宿主.
             GameObject go = new GameObject();
             var tmpOverload = GK.GetOrAddComponent<GKToyBaseOverlord>(go);
             tmpOverload.internalData = externalData;
+            tmpOverload.name = myName;
+            tmpOverload.internalData.data.name = myName;
 
             // 初始化首次数据.
             Selection.activeGameObject = go;
@@ -4007,7 +4082,7 @@ namespace GKToy
 			}
 			else if(null == instance)
 			{
-				instance = GetWindow<GKToyMaker>("Logic Maker", false);
+				instance = GetWindow<GKToyMaker>(_GetLocalization("Neuron"), false);
 				var assets = Selection.GetFiltered(typeof(GKToyBaseOverlord), SelectionMode.Assets);
 				if (0 == assets.Length)
 					return;

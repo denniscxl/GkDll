@@ -5,7 +5,7 @@
     {
         public GKToySharedString()
         {
-            Value = string.Empty;
+            Value = "";
         }
 
         static public implicit operator GKToySharedString(string value) { return new GKToySharedString { Value = value }; }

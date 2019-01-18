@@ -14,6 +14,51 @@ namespace GKToy
     {
         #region PublicField
         public static GKToyMakerDialogueCom instance;
+
+        static GKToyCameraTypeData _cameraTypeData;
+        static public GKToyCameraTypeData CameraTypeData
+        {
+            get
+            {
+                if (null == _cameraTypeData)
+                {
+                    _cameraTypeData = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/GKToyCameraTypeData.asset") as GKToyCameraTypeData;
+                    if (null == _cameraTypeData)
+                        Debug.LogError("Load cameraType faile.");
+                }
+                return _cameraTypeData;
+            }
+        }
+
+        static GKToyActionTypeData _actionTypeData;
+        static public GKToyActionTypeData ActionTypeData
+        {
+            get
+            {
+                if (null == _actionTypeData)
+                {
+                    _actionTypeData = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/GKToyActionTypeData.asset") as GKToyActionTypeData;
+                    if (null == _actionTypeData)
+                        Debug.LogError("Load actionType faile.");
+                }
+                return _actionTypeData;
+            }
+        }
+
+        static GKToySoundTypeData _soundTypeData;
+        static public GKToySoundTypeData SoundTypeData
+        {
+            get
+            {
+                if (null == _soundTypeData)
+                {
+                    _soundTypeData = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/GKToySoundTypeData.asset") as GKToySoundTypeData;
+                    if (null == _soundTypeData)
+                        Debug.LogError("Load soundType faile.");
+                }
+                return _soundTypeData;
+            }
+        }
         #endregion
 
         #region PrivateField
@@ -27,7 +72,7 @@ namespace GKToy
         #region PublicMethod
         public static void PopupTaskWindow()
         {
-            instance = GetWindow<GKToyMakerDialogueCom>("", false);
+            instance = GetWindow<GKToyMakerDialogueCom>(GKToyMaker._GetLocalization("Dialogue fragment"), true);
             _styleCenrer.alignment = TextAnchor.MiddleCenter;
             _styleRight.alignment = TextAnchor.MiddleRight;
             instance._data = null;
@@ -44,10 +89,10 @@ namespace GKToy
         {
             if (null == instance)
             {
-                instance = GetWindow<GKToyMakerDialogueCom>("", false);
+                instance = GetWindow<GKToyMakerDialogueCom>(GKToyMaker._GetLocalization("Dialogue fragment"), true);
                 wantsMouseMove = true;
-                minSize = new Vector2(GKToyMaker.instance.toyMakerBase._minWidth - 200, GKToyMaker.instance.toyMakerBase._minHeight - 300);
-                maxSize = new Vector2(GKToyMaker.instance.toyMakerBase._minWidth - 200, GKToyMaker.instance.toyMakerBase._minHeight - 300);
+                minSize = new Vector2(300, 250);
+                maxSize = new Vector2(300, 250);
             }
         }
 
@@ -59,52 +104,90 @@ namespace GKToy
             // 主内容.
             GUILayout.BeginVertical("Box");
             {
-                int count = _data._IDLst.GetValueCount();
-                if (0 != count)
+                GUILayout.BeginHorizontal();
                 {
-                    for (int i = 0; i < count; i++)
+                    GUILayout.BeginVertical();
                     {
-                        if (0 != i)
-                            GKEditor.DrawInspectorSeperator();
-
                         GUILayout.BeginHorizontal();
                         {
-                            GUILayout.BeginVertical();
-                            {
-                                GUILayout.BeginHorizontal();
-                                {
-                                    GUILayout.Label("ID: ", GUILayout.Width(60));
-                                    GKEditor.DrawBaseControl(true, _data._IDLst.GetValue(i), (obj) => { _data._IDLst.SetValue(i, obj); });
-                                }
-                                GUILayout.EndHorizontal();
-                                GUILayout.BeginHorizontal();
-                                {
-                                    GUILayout.Label("Content: ", GUILayout.Width(60));
-                                    GKEditor.DrawBaseControl(true, _data.ContentLst.GetValue(i), (obj) => { _data.ContentLst.SetValue(i, obj); });
-                                }
-                                GUILayout.EndHorizontal();
-                            }
-                            GUILayout.EndVertical();
-                            _defaultColor = GUI.backgroundColor;
-                            GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._removeBgColor;
-                            if (GUILayout.Button(" X ", GUILayout.Width(30), GUILayout.Height(30)))
-                            {
-                                _data._IDLst.RemoveAt(i);
-                                _data.ContentLst.RemoveAt(i);
-                            }
-                            GUI.backgroundColor = _defaultColor;
+                            GUILayout.Label(GKToyMaker._GetLocalization("ID") + ": ", GUILayout.Width(60));
+                            GKEditor.DrawBaseControl(true, _data.ID.Value, (obj) => { _data.ID.SetValue(obj); });
+                        }
+                        GUILayout.EndHorizontal();
+                        GUILayout.BeginHorizontal();
+                        {
+                            GUILayout.Label(GKToyMaker._GetLocalization("Content") + ": ", GUILayout.Width(60));
+                            GKEditor.DrawBaseControl(true, _data.Content.Value, (obj) => { _data.Content.SetValue(obj); });
+                        }
+                        GUILayout.EndHorizontal();
+                        GUILayout.BeginHorizontal();
+                        {
+                            GUILayout.Label(GKToyMaker._GetLocalization("Menu Text") + ": ", GUILayout.Width(60));
+                            GKEditor.DrawBaseControl(true, _data.MenuText.Value, (obj) => { _data.MenuText.SetValue(obj); });
                         }
                         GUILayout.EndHorizontal();
                     }
+                    GUILayout.EndVertical();
+                    _defaultColor = GUI.backgroundColor;
                 }
+                GUILayout.EndHorizontal();
 
-                GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._addBgColor;
-                if (GUILayout.Button(" Create dialogue."))
+                GKEditor.DrawInspectorSeperator();
+
+                GUILayout.BeginHorizontal();
                 {
-                    _data._IDLst.AddCapacity();
-                    _data.ContentLst.AddCapacity();
+                    GUILayout.Label(GKToyMaker._GetLocalization("Camera") + ": ", GUILayout.Width(100));
+                    int seleIdx = EditorGUILayout.Popup(_data.Camera.Value, CameraTypeData.GeTypeArray(), GUILayout.Width(100));
+                    if (seleIdx != _data.Camera.Value)
+                        _data.Camera.SetValue(seleIdx);
+                    GKEditor.DrawBaseControl(true, _data.Camera.Value, (obj) => { _data.Camera.SetValue(obj); });
                 }
-                GUI.backgroundColor = _defaultColor;
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Camera Value") + ": ", GUILayout.Width(100));
+                    GKEditor.DrawBaseControl(true, _data.CameraValue.Value, (obj) => { _data.CameraValue.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
+                GKEditor.DrawInspectorSeperator();
+                
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Action") + ": ", GUILayout.Width(100));
+                    int seleIdx = EditorGUILayout.Popup(_data.Action.Value, ActionTypeData.GetActionTypeArray(), GUILayout.Width(100));
+                    if (seleIdx != _data.Action.Value)
+                        _data.Action.SetValue(seleIdx);
+                    GKEditor.DrawBaseControl(true, _data.Action.Value, (obj) => { _data.Action.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Action Value") + ": ", GUILayout.Width(100));
+                    GKEditor.DrawBaseControl(true, _data.ActionValue.Value, (obj) => { _data.ActionValue.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
+                GKEditor.DrawInspectorSeperator();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Sound") + ": ", GUILayout.Width(100));
+                    int seleIdx = EditorGUILayout.Popup(_data.Sound.Value, SoundTypeData.GeTypeArray(), GUILayout.Width(100));
+                    if (seleIdx != _data.Sound.Value)
+                        _data.Sound.SetValue(seleIdx);
+                    GKEditor.DrawBaseControl(true, _data.Sound.Value, (obj) => { _data.Sound.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Sound Value") + ": ", GUILayout.Width(100));
+                    GKEditor.DrawBaseControl(true, _data.SoundValue.Value, (obj) => { _data.SoundValue.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
 

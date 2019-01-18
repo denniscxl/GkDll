@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using GKFile;
 using GKUI;
+using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
 
 namespace GKBase
 {
@@ -930,6 +932,39 @@ namespace GKBase
 					EditorGUILayout.ObjectField((UnityEngine.Object)value, value.GetType(), true);
 				}
 			}
+        }
+        /// <summary>
+        /// 设置预制件已修改
+        /// </summary>
+        /// <param name="gameObject">要修改的预制件</param>
+        static public void SetPrefabDirty(GameObject gameObject)
+        {
+            // prefab
+            EditorUtility.SetDirty(gameObject);
+        }
+        /// <summary>
+        /// 设置场景已修改
+        /// </summary>
+        static public void SetActiveSceneDirty()
+        {
+            // scene gameobject
+            UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
+            EditorSceneManager.MarkSceneDirty(scene);
+        }
+        /// <summary>
+        /// 判断是否editor
+        /// </summary>
+        /// <returns></returns>
+        static public bool isUnityEditor()
+        {
+            if (Application.isEditor)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

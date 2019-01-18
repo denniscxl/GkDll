@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
+using GKBase;
 
 namespace GKToy
 {
@@ -67,42 +68,42 @@ namespace GKToy
         // 变量转化为Json存储.
         public void SaveVariable()
         {
-#if UNITY_EDITOR
-            // 设置场景有更新.
-            if (!Application.isPlaying)
+            if (GKEditor.isUnityEditor())
             {
-                variableData.Clear();
-                variableTypeData.Clear();
-                foreach (var objs in variableLst)
+                // 设置场景有更新.
+                if (!Application.isPlaying)
                 {
-                    foreach (var obj in objs.Value)
+                    variableData.Clear();
+                    variableTypeData.Clear();
+                    foreach (var objs in variableLst)
                     {
-                        //// 规避反序列化变量内容过载. 序列化时不对序列化Data处理.
-                        //var tPropertyMappingOwner = ((GKToyVariable)obj).PropertyMappingOwner;
-                        //((GKToyVariable)obj).PropertyMappingOwner = null;
-                        //var tPropertyDataOwner = ((GKToyVariable)obj).PropertyDataOwner;
-                        //((GKToyVariable)obj).PropertyDataOwner = null;
+                        foreach (var obj in objs.Value)
+                        {
+                            //// 规避反序列化变量内容过载. 序列化时不对序列化Data处理.
+                            //var tPropertyMappingOwner = ((GKToyVariable)obj).PropertyMappingOwner;
+                            //((GKToyVariable)obj).PropertyMappingOwner = null;
+                            //var tPropertyDataOwner = ((GKToyVariable)obj).PropertyDataOwner;
+                            //((GKToyVariable)obj).PropertyDataOwner = null;
 
-                        variableData.Add(JsonUtility.ToJson(obj));
-                        variableTypeData.Add(objs.Key);
+                            variableData.Add(JsonUtility.ToJson(obj));
+                            variableTypeData.Add(objs.Key);
 
-                        //((GKToyVariable)obj).PropertyMappingOwner = tPropertyMappingOwner;
-                        //((GKToyVariable)obj).PropertyDataOwner = tPropertyDataOwner;
+                            //((GKToyVariable)obj).PropertyMappingOwner = tPropertyMappingOwner;
+                            //((GKToyVariable)obj).PropertyDataOwner = tPropertyDataOwner;
+                        }
+                    }
+                    if (_overlord.gameObject.scene.name == null)
+                    {
+                        // prefab
+                        GKEditor.SetPrefabDirty(_overlord.gameObject);
+                    }
+                    else
+                    {
+                        // scene gameobject
+                        GKEditor.SetActiveSceneDirty();
                     }
                 }
-                if (_overlord.gameObject.scene.name == null)
-                {
-                    // prefab
-                    EditorUtility.SetDirty(_overlord.gameObject);
-                }
-                else
-                {
-                    // scene gameobject
-                    UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
-                    EditorSceneManager.MarkSceneDirty(scene);
-                }
             }
-#endif
         }
 
         // Json转化为变量.
@@ -136,44 +137,44 @@ namespace GKToy
         // 节点转化为Json存储.
         public void SaveNodes()
         {
-#if UNITY_EDITOR
-            // 设置场景有更新.
-            if (!Application.isPlaying)
+            if (GKEditor.isUnityEditor())
             {
-                nodeTypeData.Clear();
-                List<string> tmpNodeData = new List<string>();
-                foreach (var obj in nodeLst.Values)
+                // 设置场景有更新.
+                if (!Application.isPlaying)
                 {
-                    tmpNodeData.Add(JsonUtility.ToJson(obj));
-                    nodeTypeData.Add(((GKToyNode)obj).className);
-                }
-                bool isChanged = false;
-                if (tmpNodeData.Count == nodeData.Count)
-                {
-                    for (int i = 0; i < tmpNodeData.Count; ++i)
+                    nodeTypeData.Clear();
+                    List<string> tmpNodeData = new List<string>();
+                    foreach (var obj in nodeLst.Values)
                     {
-                        if (!tmpNodeData[i].Equals(nodeData[i]))
-                            isChanged = true;
+                        tmpNodeData.Add(JsonUtility.ToJson(obj));
+                        nodeTypeData.Add(((GKToyNode)obj).className);
                     }
-                }
-                else
-                    isChanged = true;
-                if (isChanged)
-                {
-                    if (_overlord.gameObject.scene.name == null)
+                    bool isChanged = false;
+                    if (tmpNodeData.Count == nodeData.Count)
                     {
-                        EditorUtility.SetDirty(_overlord.gameObject);
+                        for (int i = 0; i < tmpNodeData.Count; ++i)
+                        {
+                            if (!tmpNodeData[i].Equals(nodeData[i]))
+                                isChanged = true;
+                        }
                     }
                     else
+                        isChanged = true;
+                    if (isChanged)
                     {
-                        UnityEngine.SceneManagement.Scene scene = SceneManager.GetActiveScene();
-                        EditorSceneManager.MarkSceneDirty(scene);
-                    }
+                        if (_overlord.gameObject.scene.name == null)
+                        {
+                            GKEditor.SetPrefabDirty(_overlord.gameObject);
+                        }
+                        else
+                        {
+                            GKEditor.SetActiveSceneDirty();
+                        }
 
+                    }
+                    nodeData = tmpNodeData;
                 }
-                nodeData = tmpNodeData;
             }
-#endif
         }
 
         // Json转化为节点.
@@ -181,22 +182,22 @@ namespace GKToy
         {
             nodeLst.Clear();
             int i = 0;
+            bool isEditor = GKEditor.isUnityEditor();
             foreach (var d in nodeData)
             {
                 Type t = Type.GetType(nodeTypeData[i]);
                 var n = (GKToyNode)JsonUtility.FromJson(d, t);
                 n.Init(_overlord);
-#if UNITY_EDITOR
-                if (typeof(GKToyNodeGroup) == t)
+                if (isEditor && typeof(GKToyNodeGroup) == t)
                     ((GKToyNodeGroup)n).data = this;
-#endif
                 nodeLst.Add(n.id, n);
                 i++;
             }
         }
+
         #endregion
 
         #region PrivateMethod
         #endregion
-	}
+    }
 }

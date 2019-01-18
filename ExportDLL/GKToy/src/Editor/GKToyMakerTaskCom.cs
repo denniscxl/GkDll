@@ -31,7 +31,7 @@ namespace GKToy
         #region PublicMethod
         public static void PopupTaskWindow()
         {
-            instance = GetWindow<GKToyMakerTaskCom>("", false);
+            instance = GetWindow<GKToyMakerTaskCom>("", true);
             _styleCenrer.alignment = TextAnchor.MiddleCenter;
             _styleRight.alignment = TextAnchor.MiddleRight;
             _contentIndex = 0;
@@ -44,6 +44,8 @@ namespace GKToy
         {
             instance._task = task;
             instance._propertyInfo = info;
+
+            
         }
         #endregion
 
@@ -52,10 +54,16 @@ namespace GKToy
         {
             if (null == instance)
             {
-                instance = GetWindow<GKToyMakerTaskCom>("", false);
+                instance = GetWindow<GKToyMakerTaskCom>("", true);
                 wantsMouseMove = true;
                 minSize = new Vector2(GKToyMaker.instance.toyMakerBase._minWidth - 200, GKToyMaker.instance.toyMakerBase._minHeight - 300);
                 maxSize = new Vector2(GKToyMaker.instance.toyMakerBase._minWidth - 200, GKToyMaker.instance.toyMakerBase._minHeight - 300);
+
+                instance._strContent[0] = GKToyMaker._GetLocalization("Request");
+                instance._strContent[1] = GKToyMaker._GetLocalization("Dialogue(Begin)");
+                instance._strContent[2] = GKToyMaker._GetLocalization("Content");
+                instance._strContent[3] = GKToyMaker._GetLocalization("Dialogue(End)");
+                instance._strContent[4] = GKToyMaker._GetLocalization("Reward");
             }
         }
 
@@ -115,13 +123,13 @@ namespace GKToy
                                         {
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Type: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Type") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.RequestTypeLst.GetValue(i), (obj) => { _task.RequestTypeLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Count: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Count") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.RequestCountLst.GetValue(i), (obj) => { _task.RequestCountLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
@@ -141,7 +149,7 @@ namespace GKToy
                             }
 
                             GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._addBgColor;
-                            if (GUILayout.Button(" Create Request."))
+                            if (GUILayout.Button(GKToyMaker._GetLocalization("Create")))
                             {
                                 _task.RequestTypeLst.AddCapacity();
                                 _task.RequestCountLst.AddCapacity();
@@ -164,13 +172,13 @@ namespace GKToy
                                         {
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("ID: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("ID") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.BeginDialogueIdxLst.GetValue(i), (obj) => { _task.BeginDialogueIdxLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Content: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Content") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.BeginDialogueContentLst.GetValue(i), (obj) => { _task.BeginDialogueContentLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
@@ -190,7 +198,7 @@ namespace GKToy
                             }
 
                             GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._addBgColor;
-                            if (GUILayout.Button(" Create Dialogue."))
+                            if (GUILayout.Button(GKToyMaker._GetLocalization("Create")))
                             {
                                 _task.BeginDialogueIdxLst.AddCapacity();
                                 _task.BeginDialogueContentLst.AddCapacity();
@@ -277,13 +285,13 @@ namespace GKToy
                                         {
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("ID: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("ID") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.EndDialogueIdxLst.GetValue(i), (obj) => { _task.EndDialogueIdxLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Content: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Content") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.EndDialogueContentLst.GetValue(i), (obj) => { _task.EndDialogueContentLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
@@ -303,7 +311,7 @@ namespace GKToy
                             }
 
                             GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._addBgColor;
-                            if (GUILayout.Button(" Create Dialogue."))
+                            if (GUILayout.Button(GKToyMaker._GetLocalization("Create")))
                             {
                                 _task.EndDialogueIdxLst.AddCapacity();
                                 _task.EndDialogueContentLst.AddCapacity();
@@ -326,13 +334,13 @@ namespace GKToy
                                         {
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Type: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Type") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.RewardTypeLst.GetValue(i), (obj) => { _task.RewardTypeLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
                                             GUILayout.BeginHorizontal();
                                             {
-                                                GUILayout.Label("Count: ", GUILayout.Width(60));
+                                                GUILayout.Label(GKToyMaker._GetLocalization("Count") + ": ", GUILayout.Width(60));
                                                 GKEditor.DrawBaseControl(true, _task.RewardCountLst.GetValue(i), (obj) => { _task.RewardCountLst.SetValue(i, obj); });
                                             }
                                             GUILayout.EndHorizontal();
@@ -352,7 +360,7 @@ namespace GKToy
                             }
 
                             GUI.backgroundColor = GKToyMaker.instance.toyMakerBase._addBgColor;
-                            if (GUILayout.Button(" Create Reward."))
+                            if (GUILayout.Button(GKToyMaker._GetLocalization("Create")))
                             {
                                 _task.RewardTypeLst.AddCapacity();
                                 _task.RewardCountLst.AddCapacity();

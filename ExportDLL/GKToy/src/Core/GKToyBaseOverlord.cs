@@ -271,15 +271,16 @@ namespace GKToy
         {
             d.Init(this);
             GKNodeStateMachine machine = new GKNodeStateMachine(d.nodeLst.Values.ToList());
-#if UNITY_EDITOR
-            List<GKStateListMachineBase<int>.NewStateStruct> groupIds = new List<GKStateListMachineBase<int>.NewStateStruct>();
-            foreach (GKToyNode node in d.nodeLst.Values)
+            if (GKEditor.isUnityEditor())
             {
-                if (NodeType.Group == node.nodeType)
-                    groupIds.Add(new GKStateListMachineBase<int>.NewStateStruct(node.id, "", null));
+                List<GKStateListMachineBase<int>.NewStateStruct> groupIds = new List<GKStateListMachineBase<int>.NewStateStruct>();
+                foreach (GKToyNode node in d.nodeLst.Values)
+                {
+                    if (NodeType.Group == node.nodeType)
+                        groupIds.Add(new GKStateListMachineBase<int>.NewStateStruct(node.id, "", null));
+                }
+                machine.GoToState(groupIds);
             }
-            machine.GoToState(groupIds);
-#endif
             stateMachines.Add(machine); 
         }
 
