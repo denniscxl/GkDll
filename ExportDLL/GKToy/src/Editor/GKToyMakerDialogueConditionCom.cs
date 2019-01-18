@@ -45,6 +45,8 @@ namespace GKToy
             instance = GetWindow<GKToyMakerDialogueConditionCom>(GKToyMaker._GetLocalization("Dialogue condition"), true);
             _styleCenrer.alignment = TextAnchor.MiddleCenter;
             _styleRight.alignment = TextAnchor.MiddleRight;
+            instance.minSize = new Vector2(300, 300);
+            instance.maxSize = new Vector2(300, 300);
             instance._data = null;
         }
 
@@ -61,8 +63,8 @@ namespace GKToy
             {
                 instance = GetWindow<GKToyMakerDialogueConditionCom>("", true);
                 wantsMouseMove = true;
-                minSize = new Vector2(300, 200);
-                maxSize = new Vector2(300, 200);
+                minSize = new Vector2(200, 300);
+                maxSize = new Vector2(200, 300);
             }
         }
 
@@ -76,9 +78,9 @@ namespace GKToy
             {
                 GUILayout.BeginHorizontal();
                 {
-                    GUILayout.Label(GKToyMaker._GetLocalization("Condition") + ": ", GUILayout.Width(100));
+                    GUILayout.Label(GKToyMaker._GetLocalization("Condition") + ": ", GUILayout.Width(60));
 
-                    int seleIdx = EditorGUILayout.Popup(_data.CondPara.Value, ConditionType.GetConditionTypeArray(), GUILayout.Width(100));
+                    int seleIdx = EditorGUILayout.Popup(_data.CondPara.Value, ConditionType.GetConditionTypeArray(), GUILayout.Width(160));
                     if (seleIdx != _data.CondPara.Value)
                         _data.CondPara.SetValue(seleIdx);
                     GKEditor.DrawBaseControl(true, _data.CondPara.Value, (obj) => { _data.CondPara.SetValue(obj); });
@@ -87,7 +89,7 @@ namespace GKToy
 
                 GUILayout.BeginHorizontal();
                 {
-                    GUILayout.Label(GKToyMaker._GetLocalization("Condition Value") + ": ", GUILayout.Width(100));
+                    GUILayout.Label(GKToyMaker._GetLocalization("Condition Value") + ": ", GUILayout.Width(60));
                     GKEditor.DrawBaseControl(true, _data.CondValue.Value, (obj) => { _data.CondValue.SetValue(obj); });
                 }
                 GUILayout.EndHorizontal();

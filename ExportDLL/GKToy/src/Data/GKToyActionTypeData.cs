@@ -25,7 +25,7 @@ namespace GKToy
                 return _strActionTypeLst.ToArray();
 
             foreach (var ct in _actionTypeData)
-                _strActionTypeLst.Add(ct.actionType);
+                _strActionTypeLst.Add(GKToyMaker._GetLocalization(ct.actionType));
 
             return _strActionTypeLst.ToArray();
         }

@@ -43,6 +43,15 @@ namespace GKToy
             set { _menuText = value; }
         }
 
+        // 表情内容.
+        [SerializeField]
+        private GKToySharedString _speakText = new GKToySharedString();
+        public GKToySharedString SpeakText
+        {
+            get { return _speakText; }
+            set { _speakText = value; }
+        }
+
         // 摄像机类型.
         [SerializeField]
         private GKToySharedInt _camera = new GKToySharedInt();

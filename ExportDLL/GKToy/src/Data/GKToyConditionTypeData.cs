@@ -37,7 +37,7 @@ namespace GKToy
                 return _strConditionTypeLst.ToArray();
 
             foreach (var ct in _conditionTypeData)
-                _strConditionTypeLst.Add(ct.conditionType);
+                _strConditionTypeLst.Add(GKToyMaker._GetLocalization(ct.conditionType));
 
             return _strConditionTypeLst.ToArray();
         }

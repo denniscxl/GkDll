@@ -37,7 +37,7 @@ namespace GKToy
                 return _strTypeLst.ToArray();
 
             foreach (var ct in _typeData)
-                _strTypeLst.Add(ct.type);
+                _strTypeLst.Add(GKToyMaker._GetLocalization(ct.type));
 
             return _strTypeLst.ToArray();
         }
