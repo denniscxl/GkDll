@@ -52,7 +52,13 @@ namespace GKToy
                 return;
             }
 
-
+            if (basename == "GKToy_ConditionOutputTypeData.csv")
+            {
+                var condOutputData = LoadOrCreateConditionOutputData();
+                EditorUtility.SetDirty(condOutputData);
+                _OnImportConditionOutputTypeData(filename, condOutputData);
+                return;
+            }
         }
 
         #region Localization
@@ -256,6 +262,47 @@ namespace GKToy
                     continue;
 
                 data._conditionTypeData[d.id] = d;
+            }
+        }
+        #endregion
+
+        #region ConditionOutputType
+        static public GKToyConditionOutputTypeData LoadOrCreateConditionOutputData()
+        {
+            return GKEditor.LoadOrCreateAssetByNonResource<GKToyConditionOutputTypeData>("Assets/Utilities/GKToy/CSV/_AutoGen/GKToyConditionOutputTypeData.asset");
+        }
+
+        static void _OnImportConditionOutputTypeData(string filename, GKToyConditionOutputTypeData data)
+        {
+            var p = GKCSVParser.OpenFile(filename, "#columns");
+            if (p == null) return;
+
+            int row = 0;
+
+            // Calc valid lines.
+            while (p.NextRow())
+            {
+                if (p.IsRowStartWith("#")) continue;
+
+                row++;
+            }
+
+            // Reset readIndex to 3.
+            p.ResetReadIndex();
+            // Init item data array.
+            data.ReseDataTypeArray(row);
+
+            while (p.NextRow())
+            {
+                if (p.IsRowStartWith("#")) continue;
+
+                var d = new GKToyConditionOutputTypeData.ConditionOutputTypeData();
+                p.RowToObject<GKToyConditionOutputTypeData.ConditionOutputTypeData>(ref d);
+
+                if (null == d || d.id < 0 || d.id >= data._typeData.Length)
+                    continue;
+
+                data._typeData[d.id] = d;
             }
         }
         #endregion

@@ -14,29 +14,33 @@ namespace GKToy
         {
             // Dialogue.
             doubleClickType = 2;
+            type = 1;
         }
 
         // 起始对话索引.
         [SerializeField]
-        private GKToySharedInt _idx = new GKToySharedInt();
-        public GKToySharedInt ID
+        private GKToySharedInt _entity = new GKToySharedInt();
+        [ExportClient]
+        public GKToySharedInt Entity
         {
-            get { return _idx; }
-            set { _idx = value; }
+            get { return _entity; }
+            set { _entity = value; }
         }
 
         // 起始对话内容.
         [SerializeField]
-        private GKToySharedString _content = new GKToySharedString();
-        public GKToySharedString Content
+        private GKToySharedString _speakText = new GKToySharedString();
+        [ExportClient]
+        public GKToySharedString SpeakText
         {
-            get { return _content; }
-            set { _content = value; }
+            get { return _speakText; }
+            set { _speakText = value; }
         }
 
         // 按钮内容.
         [SerializeField]
         private GKToySharedString _menuText = new GKToySharedString();
+        [ExportClient]
         public GKToySharedString MenuText
         {
             get { return _menuText; }
@@ -45,43 +49,58 @@ namespace GKToy
 
         // 表情内容.
         [SerializeField]
-        private GKToySharedString _speakText = new GKToySharedString();
-        public GKToySharedString SpeakText
+        private GKToySharedString _speakText2 = new GKToySharedString();
+        [ExportClient]
+        public GKToySharedString SpeakText2
         {
-            get { return _speakText; }
-            set { _speakText = value; }
+            get { return _speakText2; }
+            set { _speakText2 = value; }
         }
 
         // 摄像机类型.
         [SerializeField]
-        private GKToySharedInt _camera = new GKToySharedInt();
-        public GKToySharedInt Camera
+        private GKToySharedInt _cameraRes = new GKToySharedInt();
+        [ExportClient]
+        public GKToySharedInt CameraRes
         {
-            get { return _camera; }
-            set { _camera = value; }
+            get { return _cameraRes; }
+            set { _cameraRes = value; }
         }
 
         //摄像机值.
         [SerializeField]
         private GKToySharedString _cameraValue = new GKToySharedString();
+        [ExportClient]
         public GKToySharedString CameraValue
         {
             get { return _cameraValue; }
             set { _cameraValue = value; }
         }
 
+        // 动画.
+        [SerializeField]
+        private GKToySharedString _animationRes = new GKToySharedString();
+        [ExportClient]
+        public GKToySharedString AnimationRes
+        {
+            get { return _animationRes; }
+            set { _animationRes = value; }
+        }
+
         // 行为.
         [SerializeField]
-        private GKToySharedInt _action = new GKToySharedInt();
-        public GKToySharedInt Action
+        private GKToySharedInt _actionRes = new GKToySharedInt();
+        [ExportClient]
+        public GKToySharedInt ActionRes
         {
-            get { return _action; }
-            set { _action = value; }
+            get { return _actionRes; }
+            set { _actionRes = value; }
         }
 
         // 行为值.
         [SerializeField]
         private GKToySharedString _actionValue = new GKToySharedString();
+        [ExportClient]
         public GKToySharedString ActionValue
         {
             get { return _actionValue; }
@@ -95,16 +114,18 @@ namespace GKToy
 
         // 声音类型.
         [SerializeField]
-        private GKToySharedInt _sound = new GKToySharedInt();
-        public GKToySharedInt Sound
+        private GKToySharedInt _soundRes = new GKToySharedInt();
+        [ExportClient]
+        public GKToySharedInt SoundRes
         {
-            get { return _sound; }
-            set { _sound = value; }
+            get { return _soundRes; }
+            set { _soundRes = value; }
         }
 
         //声音值.
         [SerializeField]
         private GKToySharedString _soundValue = new GKToySharedString();
+        [ExportClient]
         public GKToySharedString SoundValue
         {
             get { return _soundValue; }

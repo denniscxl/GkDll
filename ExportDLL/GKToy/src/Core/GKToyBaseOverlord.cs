@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEditor;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace GKToy
 {
@@ -56,6 +57,7 @@ namespace GKToy
                     EditorUtility.SetDirty(ed);
                 }
             }
+            Backup();
         }
         /// <summary>
         /// 备份数据到文件
@@ -68,13 +70,17 @@ namespace GKToy
             {
                 Directory.CreateDirectory(dataPath);
             }
-            string overlordPath = string.Format("{0}overlord_{1}_back", dataPath, internalData.name);
+            string overlordPath = string.Format("{0}overlord_{1}_back.dbak", dataPath, internalData.name);
             OverlordBackData backData = new OverlordBackData(dataPath, this);
-            File.WriteAllText(overlordPath, JsonConvert.SerializeObject(backData));
-            File.WriteAllText(backData.internalData.backupPath, JsonConvert.SerializeObject(internalData.data));
+            File.WriteAllText(overlordPath, JsonConvert.SerializeObject(backData, Formatting.Indented));
+            string data = JsonConvert.SerializeObject(internalData.data, Formatting.Indented);
+            Regex r = new Regex(@"(?<=[^\\])\\n");
+            data = r.Replace(data, "\t\n");
+            File.WriteAllText(backData.internalData.backupPath, data);
             foreach (GKToyExternalData external in externalDatas)
             {
-                File.WriteAllText(backData.externalDatas[external.name].backupPath, JsonConvert.SerializeObject(external.data));
+                data = JsonConvert.SerializeObject(external.data, Formatting.Indented);
+                File.WriteAllText(backData.externalDatas[external.name].backupPath, r.Replace(data, "\t\n"));
             }
         }
         /// <summary>
@@ -82,7 +88,7 @@ namespace GKToy
         /// </summary>
         public bool Restore()
         {
-            string filePath = string.Format("{0}/OverlordBackup/overlord_{1}_back", Path.GetDirectoryName(AssetDatabase.GetAssetPath(internalData)), internalData.name);
+            string filePath = string.Format("{0}/OverlordBackup/overlord_{1}_back.dbak", Path.GetDirectoryName(AssetDatabase.GetAssetPath(internalData)), internalData.name);
             if (!File.Exists(filePath))
             {
                 filePath = EditorUtility.OpenFilePanel("Restore data", Application.dataPath, "");
@@ -91,13 +97,13 @@ namespace GKToy
             {
                 OverlordBackData backData = JsonConvert.DeserializeObject<OverlordBackData>(File.ReadAllText(filePath));
                 GKToyExternalData internData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(backData.internalData.resourcePath);
-                internData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(backData.internalData.backupPath));
+                internData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(backData.internalData.backupPath).Replace("\t\n", "\\n"));
                 internData.data.Init(this);
                 List<GKToyExternalData> externDatas = new List<GKToyExternalData>();
                 foreach (var external in backData.externalDatas)
                 {
                     GKToyExternalData externData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(external.Value.resourcePath);
-                    externData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(external.Value.backupPath));
+                    externData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(external.Value.backupPath).Replace("\t\n", "\\n"));
                     externData.data.Init(this);
                     externDatas.Add(externData);
                 }
@@ -110,6 +116,41 @@ namespace GKToy
             {
                 return false;
             }
+        }
+        /// <summary>
+        /// 保存prefab
+        /// </summary>
+        /// <param name="destPath"></param>
+        public void SavePrefab(string destPath)
+        {
+            if (!Directory.Exists(destPath))
+            {
+                do
+                {
+                    destPath = EditorUtility.OpenFolderPanel(GKToyMaker._GetLocalization("Save path"), internalData.name, GKToyMaker._GetLocalization("Select save path."));
+                } while (!Directory.Exists(destPath));
+                destPath = destPath.Substring(destPath.IndexOf("Assets/"));
+                Settings.toyMakerBase._defaultOverlordPath = destPath;
+            }
+            string prefabPath = string.Format("{0}/{1}.prefab", destPath, internalData.name);
+            GameObject prefab;
+            if (!File.Exists(prefabPath))
+            {
+                prefab = PrefabUtility.CreatePrefab(prefabPath, gameObject);
+            }
+            else
+            {
+                prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                prefab = PrefabUtility.ReplacePrefab(gameObject, prefab);
+            }
+            Selection.activeGameObject = prefab;
+            DestroyImmediate(gameObject);
+        }
+
+        static public void MergeBackData(string file)
+        {
+            GKToyData tmpData = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(file).Replace("\t\n", "\\n"));
+            //tmpData.Init();
         }
 
         #region ExternalData
@@ -340,11 +381,11 @@ namespace GKToy
 
         public OverlordBackData(string dataPath, GKToyBaseOverlord overlord)
         {
-            internalData = new BackupDataItem(AssetDatabase.GetAssetPath(overlord.internalData), string.Format("{0}{1}_back", dataPath, overlord.internalData.name));
+            internalData = new BackupDataItem(AssetDatabase.GetAssetPath(overlord.internalData), string.Format("{0}{1}_back.dbak", dataPath, overlord.internalData.name));
             externalDatas = new Dictionary<string, BackupDataItem>();
             foreach (GKToyExternalData external in overlord.externalDatas)
             {
-                externalDatas.Add(external.name, new BackupDataItem(AssetDatabase.GetAssetPath(external), string.Format("{0}{1}_back", dataPath, external.name)));
+                externalDatas.Add(external.name, new BackupDataItem(AssetDatabase.GetAssetPath(external), string.Format("{0}{1}_back.dbak", dataPath, external.name)));
             }
             isPlaying = overlord.isPlaying;
         }

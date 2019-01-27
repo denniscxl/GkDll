@@ -11,7 +11,11 @@ namespace GKToy
         protected List<T> _value;
         public T [] Value
         {
-            get { return _value.ToArray(); }
+            get {
+                if (null == _value)
+                    _value = new List<T>();
+                return _value.ToArray();
+            }
             set 
             {
                 _value.Clear();

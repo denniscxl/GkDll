@@ -14,11 +14,13 @@ namespace GKToy
         {
             // Dialogue condition.
             doubleClickType = 4;
+            type = 2;
         }
 
         // 条件类型.
         [SerializeField]
         private GKToySharedInt _condPara = new GKToySharedInt();
+        [ExportClient]
         public GKToySharedInt CondPara
         {
             get { return _condPara; }
@@ -28,12 +30,44 @@ namespace GKToy
         // 条件值.
         [SerializeField]
         private GKToySharedInt _condValue = new GKToySharedInt();
+        [ExportClient]
         public GKToySharedInt CondValue
         {
             get { return _condValue; }
             set { _condValue = value; }
         }
-        
+
+        // Yes节点链接ID.
+        [SerializeField]
+        private GKToySharedInt _ifYesNode = new GKToySharedInt();
+		[ExportClient]
+        public GKToySharedInt IfYesNode
+        {
+            get { return _ifYesNode; }
+            set { _ifYesNode = value; }
+        }
+
+        // No节点链接ID.
+        [SerializeField]
+        private GKToySharedInt _ifNoNode = new GKToySharedInt();
+		[ExportClient]
+        public GKToySharedInt IfNoNode
+        {
+            get { return _ifNoNode; }
+            set { _ifNoNode = value; }
+        }
+
+        // 输出类型.
+        [SerializeField]
+        private GKToySharedInt _outPutType = new GKToySharedInt();
+		[ExportClient]
+        public GKToySharedInt OutPutType
+        {
+            get { return _outPutType; }
+            set { _outPutType = value; }
+        }
+
+
         override public void Init(GKToyBaseOverlord ovelord)
 		{
 			base.Init(ovelord);
@@ -49,5 +83,18 @@ namespace GKToy
             NextAll();
 			return 0;
 		}
+
+        override public void LinkUpdate()
+        {
+            IfYesNode = 0;
+            IfNoNode = 0;
+            for (int i = 0; i < links.Count; i++)
+            {
+                if (0 == i)
+                    IfYesNode.Value = links[i].next;
+                if (1 == i)
+                    IfNoNode.Value = links[i].next;
+            }
+        }
     }
 }

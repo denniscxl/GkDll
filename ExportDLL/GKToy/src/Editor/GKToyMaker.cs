@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
+using System.Xml.Serialization;
+using System.Collections;
 
 namespace GKToy
 {
@@ -283,7 +285,6 @@ namespace GKToy
                     _GetLocalization("Save data before proceeding?"), _GetLocalization("OK"), _GetLocalization("Cancel")))
                 {
                     _overlord.Save();
-                    _overlord.Backup();
                 }
             }
             instance = null;
@@ -303,6 +304,7 @@ namespace GKToy
                             var destPath = EditorUtility.SaveFilePanelInProject("Save path", "", "Asset", "Select save path.");
                             if (!string.IsNullOrEmpty(destPath))
                             {
+                                toyMakerBase._defaultOverlordPath = Path.GetDirectoryName(destPath);
                                 _CreateData(destPath); 
                             }
                         }
@@ -506,7 +508,6 @@ namespace GKToy
                                     if (!string.IsNullOrEmpty(destPath))
                                     {
                                         _overlord.Save();
-                                        _overlord.Backup();
                                         _CreateData(destPath);
                                     }
                                 }
@@ -537,7 +538,6 @@ namespace GKToy
 
                                             // 创建新对象.
                                             _overlord.Save();
-                                            _overlord.Backup();
                                             _CreateData(destPath);
                                         }
                                     }
@@ -547,6 +547,11 @@ namespace GKToy
                             case 4:
                                 GKToyMakerDialogueConditionCom.PopupTaskWindow();
                                 GKToyMakerDialogueConditionCom.InitSubData((GKToyDialogueCondition)node);
+                                break;
+                            // Dialogue exit.
+                            case 5:
+                                GKToyMakerDialogueExitCom.PopupTaskWindow();
+                                GKToyMakerDialogueExitCom.InitSubData((GKToyDialogueExit)node);
                                 break;
                             default:
                                 break;
@@ -939,7 +944,7 @@ namespace GKToy
                 // 截屏.
                 if (GUILayout.Button(_GetLocalization("Take screenshot"), EditorStyles.toolbarButton, GUILayout.Width(160), GUILayout.Height(toyMakerBase._lineHeight)))
                 {
-                    // 计算截屏的Scale、ScrollPos，设置截屏参数.
+                    // 计算截屏的Scale、ScrollPos，设置截屏参数. 
                     float minX = (_drawingNodes.Min(x => x.inputRect.xMin) - _contentRect.x) / Scale - toyMakerBase._lineHeight;
                     float maxX = (_drawingNodes.Max(x => x.outputRect.xMax) - _contentRect.x) / Scale + toyMakerBase._lineHeight;
                     float minY = (_drawingNodes.Min(x => x.rect.yMin) - _contentRect.y) / Scale - toyMakerBase._lineHeight * 2;
@@ -951,6 +956,9 @@ namespace GKToy
                     float scaleX = shotWidth / (maxX - minX);
                     float scaleY = shotHeight / (maxY - minY);
                     float shotScale = Mathf.Min(scaleX, scaleY, 1);
+
+                    Debug.Log(string.Format("minX:{0}|minY:{1}|maxX:{2}|maxY:{3}|shotWidth:{4}|shotHeight:{5}|shotX:{6}|shotY:{7}|scaleX:{8}|scaleY:{9}|shotScale:{10}", minX, minY, maxX, maxY, shotWidth, shotHeight, shotX, shotY, scaleX, scaleY, shotScale));
+
                     if (shotScale == 1)
                     {
                         shotY += shotHeight - (int)(maxY - minY);
@@ -1015,8 +1023,8 @@ namespace GKToy
             if (GUI.Button(_tmpRect, _GetLocalization("Export Game Data"), EditorStyles.toolbarButton))
             {
                 GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent(_GetLocalization("Client")), false, _ExportGameData, 1);
-                menu.AddItem(new GUIContent(_GetLocalization("Server")), false, _ExportGameData, 2);
+                menu.AddItem(new GUIContent(_GetLocalization("Client")), false, _ExportGameData, (object)(string.Format("1|{0}Client", _overlord.internalData.data.name)));
+                menu.AddItem(new GUIContent(_GetLocalization("Server")), false, _ExportGameData, (object)(string.Format("2|{0}Server", _overlord.internalData.data.name)));
                 menu.ShowAsContext();
             }
             // 绘制快捷键按钮.
@@ -1150,54 +1158,141 @@ namespace GKToy
         /// 导出游戏数据
         /// </summary>
         /// <param name="dataType">数据类型：1-客户端，2-服务器</param>
-        void _ExportGameData(object dataType)
+        void _ExportGameData(object parameter)
         {
-            var destPath = EditorUtility.SaveFilePanelInProject(_GetLocalization("Save path"), "", "json", _GetLocalization("Select save path."));
-            if (string.IsNullOrEmpty(destPath))
-                return;
+            string[] info = ((string)parameter).Split('|');
+            string dataType = info[0];
+            string fileName = info[1];
+            
+            
+            string destPath = string.Format("{0}/OutputData/{1}.xml", Settings.toyMakerBase._defaultOverlordPath, fileName);
+            if (!Directory.Exists(destPath))
+                GKFile.GKFileUtil.CreateDirectoryFromFileName(destPath);
+
             // 存储数据源节点.
             _overlord.Save();
-            List<GameDataItem> gameData = new List<GameDataItem>();
+
+            GameData gameData = new GameData();
             GameDataItem tmpItem;
+            List<Type> propTypes = new List<Type>();
             foreach (GKToyNode node in CurRenderData.nodeLst.Values)
             {
                 if (NodeType.Group == node.nodeType || NodeType.VirtualNode == node.nodeType)
                     continue;
-                tmpItem = new GameDataItem(node.id);
-                if (1 == (int)dataType)
-                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportClientAttribute));
-                else if(2 == (int)dataType)
-                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportServerAttribute));
-                gameData.Add(tmpItem);
+                tmpItem = new GameDataItem(node.type);
+                if (1 == int.Parse(dataType))
+                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportClientAttribute), propTypes);
+                else if (2 == int.Parse(dataType))
+                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportServerAttribute), propTypes);
+                gameData.data.Add(tmpItem);
             }
-            File.WriteAllText(destPath, JsonConvert.SerializeObject(gameData));
+            var serializer = new XmlSerializer(typeof(GameData), propTypes.ToArray());
+            var stream = new FileStream(destPath, FileMode.Create);
+            try
+            {
+                serializer.Serialize(stream, gameData);
+            }
+            finally
+            {
+                stream.Close();
+            }
         }
         /// <summary>
-        /// 在实例中读取带有特定Attribute的变量
+        /// 在实例中读取带有特定Attribute的属性
         /// </summary>
         /// <param name="obj">读取的实例</param>
         /// <param name="attribute">Attribute</param>
-        /// <returns>变量：变量名-变量值</returns>
-        Dictionary<string, object> _GetFieldsWithAttribute(object obj, Type attribute)
+        /// <param name="types">序列化时需要额外定义的类型</param>
+        /// <returns>属性列表</returns>
+        List<GameDataProperty> _GetFieldsWithAttribute(object obj, Type attribute, List<Type> types)
         {
             if (!obj.GetType().IsClass)
                 return null;
             Type type = obj.GetType();
-            FieldInfo[] allFields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            List<FieldInfo> allFields = new List<FieldInfo>();
+            // 读取所有属性.
+            do
+            { 
+                allFields.AddRange(type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                type = type.BaseType;
+            } while (null != type);
             object[] attrs;
-            Dictionary<string, object> fields = new Dictionary<string, object>();
+            List<GameDataProperty> fields = new List<GameDataProperty>();
             foreach (FieldInfo field in allFields)
             {
                 attrs = field.GetCustomAttributes(attribute, true);
                 if (0 != attrs.Length)
                 {
-                    fields.Add(field.Name, field.GetValue(obj));
+                    object val = field.GetValue(obj);
+                    Type propType = val.GetType();
+                    _DealWithAttributes(ref val, ref propType, types);
+                    attrs = field.GetCustomAttributes(typeof(XmlElementAttribute), true);
+                    if (0 != attrs.Length)
+                    {
+                        fields.Add(new GameDataProperty(((XmlElementAttribute)attrs[0]).ElementName, val));
+                    }
+                    else
+                    {
+                        fields.Add(new GameDataProperty(field.Name, val));
+                    }
+                }
+            }
+            // 读取所有属性.
+            type = obj.GetType();
+            List<PropertyInfo> allProperties = new List<PropertyInfo>();
+            do
+            {
+                allProperties.AddRange(type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                type = type.BaseType;
+            } while (null != type);
+            foreach (PropertyInfo property in allProperties)
+            {
+                attrs = property.GetCustomAttributes(attribute, true);
+                if (0 != attrs.Length)
+                {
+                    object val = property.GetValue(obj, null);
+                    Type propType = val.GetType();
+                    _DealWithAttributes(ref val, ref propType, types);
+                    attrs = property.GetCustomAttributes(typeof(XmlElementAttribute), true);
+                    if (0 != attrs.Length)
+                    {
+                        fields.Add(new GameDataProperty(((XmlElementAttribute)attrs[0]).ElementName, val));
+                    }
+                    else
+                    {
+                        fields.Add(new GameDataProperty(property.Name, val));
+                    }
                 }
             }
             if (0 == fields.Count)
                 return null;
             else
                 return fields;
+        }
+
+        void _DealWithAttributes(ref object val, ref Type propType, List<Type> types)
+        {
+            // 提取自定义变量的值.
+            if (propType.IsSubclassOf(typeof(GKToyVariable)))
+            {
+                var v = (GKToyVariable)val;
+                val = v.GetValue();
+                propType = val.GetType();
+            }
+            // 添加需要额外定义的序列化类型.
+            if (!types.Contains(propType) && ("GKToy" == propType.Namespace || val is IList))
+            {
+                types.Add(propType);
+            }
+            // 给Link添加nextType属性.
+            if (propType == typeof(List<Link>))
+            {
+                foreach (Link link in (List<Link>)val)
+                {
+                    link.nextType = ((GKToyNode)CurRenderData.nodeLst[link.next]).type;
+                }
+            }
+            
         }
         #endregion
 
@@ -3741,7 +3836,6 @@ namespace GKToy
                         {
                             Event.current.Use();
                             _overlord.Save();
-                            _overlord.Backup();
                             ShowNotification(new GUIContent(_GetLocalization("Data saved")));
                         }
                         Event.current.Use();
@@ -3971,17 +4065,13 @@ namespace GKToy
                 if (0 == assets.Length)
                     return;
 
-                if (null == _overlord)
-                    _ResetSelected((GKToyBaseOverlord)assets[0]);
-
-                if (assets[0] != _overlord)
+                if (null == _overlord || assets[0] != _overlord)
                 {
                     _ResetSelected((GKToyBaseOverlord)assets[0]);
+                    _isScale = true;
+                    _UpdateLinks();
+                    Repaint();
                 }
-
-                _isScale = true;
-                _UpdateLinks();
-                Repaint();
             }
         }
 
@@ -4052,6 +4142,7 @@ namespace GKToy
             node.pos.x = (_contentScrollPos.x + toyMakerBase._minWidth * 0.5f) / Scale;
             node.pos.y = (_contentScrollPos.y + toyMakerBase._minHeight * 0.5f) / Scale;
             _CreateNode(node);
+            _overlord.SavePrefab(toyMakerBase._defaultOverlordPath);
         }
 #if UNITY_2017_2_OR_NEWER
         private void _SaveDataWhenPlayModeChange(PlayModeStateChange state)
@@ -4079,7 +4170,7 @@ namespace GKToy
 			if (!EditorApplication.isPlaying && _overlord != null)
 			{
 				_overlord.Save();
-			}
+            }
 			else if(null == instance)
 			{
 				instance = GetWindow<GKToyMaker>(_GetLocalization("Neuron"), false);
@@ -4124,19 +4215,47 @@ namespace GKToy
             public string parmKey = string.Empty;
             public GKToyNode node;
         }
+
+        [Serializable]
+        [XmlRoot("GameData")]
+        public class GameData
+        {
+            public List<GameDataItem> data;
+
+            public GameData()
+            {
+                data = new List<GameDataItem>();
+            }
+        }
+
         /// <summary>
         /// 数据结构-游戏数据导出
         /// </summary>
         [Serializable]
         public class GameDataItem
         {
-            public int id;
-            public Dictionary<string, object> properties;
+            public int type;
+            public List<GameDataProperty> properties;
 
-            public GameDataItem(int _id)
+            public GameDataItem() { }
+            public GameDataItem(int _type)
             {
-                id = _id;
-                properties = new Dictionary<string, object>();
+                type = _type;
+                properties = new List<GameDataProperty>();
+            }
+        }
+
+        [Serializable]
+        public class GameDataProperty
+        {
+            public string name;
+            public object value;
+
+            public GameDataProperty() { }
+            public GameDataProperty(string _name, object _value)
+            {
+                name = _name;
+                value = _value;
             }
         }
     }

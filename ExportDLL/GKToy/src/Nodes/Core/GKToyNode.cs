@@ -5,7 +5,7 @@ using System.Linq;
 using GKStateMachine;
 using System.Reflection;
 using System;
-using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace GKToy
 {
@@ -13,6 +13,9 @@ namespace GKToy
     public class GKToyNode : GKStateMachineStateBase<int>
     {
         #region PublicField
+        [ExportClient]
+        [ExportServer]
+        [XmlElement("NodeID")]
         public int id;
         public Texture icon;
         public NodeType nodeType = NodeType.Node;
@@ -39,6 +42,7 @@ namespace GKToy
         public bool[] propLock;
         [ExportClient]
         [ExportServer]
+        [XmlElement("Links")]
         public List<Link> links = new List<Link>();
         public List<Link> otherLinks = new List<Link>();
         public GKNodeStateMachine machine;
@@ -47,6 +51,8 @@ namespace GKToy
         public object outputObject = null;
         // 双击窗口类型.
         public int doubleClickType = 0;
+        // 节点类型;
+        public int type = 0;
         #endregion
 
         #region PrivateField
@@ -164,6 +170,11 @@ namespace GKToy
             link.isFirstVertical = vertical;
         }
 
+        virtual public void LinkUpdate()
+        {
+
+        }
+
         /// <summary>
         /// 添加连线
         /// </summary>
@@ -188,8 +199,10 @@ namespace GKToy
                 otherLinks.Add(new Link(linkId, GK.ClacLinePoint(src, dest, out vertical, height), vertical, id, nextNode.id, parmKey));
             else
                 links.Add(new Link(linkId, GK.ClacLinePoint(src, dest, out vertical, height), vertical, id, nextNode.id, parmKey));
-        }
 
+            LinkUpdate();
+        }
+        
         public void RemoveLink(GKToyNode removeNode)
         {
             if (10 > (int)removeNode.nodeType)
@@ -204,6 +217,8 @@ namespace GKToy
                 if (null != link)
                     otherLinks.Remove(link);
             }
+
+            LinkUpdate();
         }
         /// <summary>
         /// 检测是否被连接
@@ -386,31 +401,40 @@ namespace GKToy
 	/// 连线类
 	/// </summary>
     [System.Serializable]
-    [JsonObject(MemberSerialization.OptIn)]
     public class Link
 	{
+        [XmlIgnore]
         public int id;
+        [XmlIgnore]
         public Color color = Color.black;
-		public bool isFirstVertical;
-		public List<Vector2> points;
+        [XmlIgnore]
+        public bool isFirstVertical;
+        [XmlIgnore]
+        public List<Vector2> points = new List<Vector2>();
+        [XmlIgnore]
         public int previous;
-        [JsonProperty]
         public int next;
-        [JsonProperty]
         public int nextType;
         /// <summary>
         /// 链接目标可为节点也可为节点参数, 如果key不为空为该节点参数.
         /// </summary>
+        [XmlIgnore]
         public string parmKey = String.Empty;
         // 链接形态类型.
+        [XmlIgnore]
         public LinkType type = LinkType.RightAngle;
         // 是否展开Option.
+        [XmlIgnore]
         public bool bOption = false;
+
+        public Link()
+        {
+            
+        }
 
 		public Link(int _id, List<Vector2> _points, bool _isFirstVertical, int _previous, int _next, string _parmKey = "")
 		{
 			id = _id;
-            nextType = 1;
             points = new List<Vector2>(_points);
 			isFirstVertical = _isFirstVertical;
             previous = _previous;

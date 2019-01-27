@@ -13,6 +13,7 @@ namespace GKToy
 
         // 需求类型链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _requestTypeLst = new GKToySharedIntLst();
         public GKToySharedIntLst RequestTypeLst
         {
@@ -22,6 +23,7 @@ namespace GKToy
 
         // 需求数量链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _requestCountLst = new GKToySharedIntLst();
         public GKToySharedIntLst RequestCountLst
         {
@@ -31,6 +33,7 @@ namespace GKToy
 
         // 起始对话索引链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _beginDialogueIdxLst = new GKToySharedIntLst();
         public GKToySharedIntLst BeginDialogueIdxLst
         {
@@ -40,6 +43,7 @@ namespace GKToy
 
         // 起始对话内容链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedStringLst _beginDialogueContentLst = new GKToySharedStringLst();
         public GKToySharedStringLst BeginDialogueContentLst
         {
@@ -49,6 +53,7 @@ namespace GKToy
         
         // 完结对话索引链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _endDialogueIdxLst = new GKToySharedIntLst();
         public GKToySharedIntLst EndDialogueIdxLst
         {
@@ -58,6 +63,7 @@ namespace GKToy
 
         // 完结对话内容链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedStringLst _endDialogueContentLst = new GKToySharedStringLst();
         public GKToySharedStringLst EndDialogueContentLst
         {
@@ -67,6 +73,7 @@ namespace GKToy
 
         // 奖励类型链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _rewardTypeLst = new GKToySharedIntLst();
         public GKToySharedIntLst RewardTypeLst
         {
@@ -76,6 +83,7 @@ namespace GKToy
 
         // 奖励数量链表.
         [SerializeField]
+        [ExportClient]
         private GKToySharedIntLst _rewardCountLst = new GKToySharedIntLst();
         public GKToySharedIntLst RewardCountLst
         {

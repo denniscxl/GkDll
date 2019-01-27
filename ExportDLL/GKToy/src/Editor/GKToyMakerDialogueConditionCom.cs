@@ -29,6 +29,22 @@ namespace GKToy
                 return _conditionType;
             }
         }
+
+        static GKToyConditionOutputTypeData _conditionOutputType;
+        static public GKToyConditionOutputTypeData ConditionOutputType
+        {
+            get
+            {
+                if (null == _conditionOutputType)
+                {
+                    Debug.Log(1);
+                    _conditionOutputType = AssetDatabase.LoadMainAssetAtPath("Assets/Utilities/GKToy/CSV/_AutoGen/GKToyConditionOutputTypeData.asset") as GKToyConditionOutputTypeData;
+                    if (null == _conditionType)
+                        Debug.LogError("Load conditionType faile.");
+                }
+                return _conditionOutputType;
+            }
+        }
         #endregion
 
         #region PrivateField
@@ -87,10 +103,32 @@ namespace GKToy
                 }
                 GUILayout.EndHorizontal();
 
+                GKEditor.DrawInspectorSeperator();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("OutputType") + ": ", GUILayout.Width(60));
+
+                    int seleIdx = EditorGUILayout.Popup(_data.OutPutType.Value, ConditionOutputType.GetArray(), GUILayout.Width(160));
+                    if (seleIdx != _data.OutPutType.Value)
+                        _data.OutPutType.SetValue(seleIdx);
+                    GKEditor.DrawBaseControl(true, _data.OutPutType.Value, (obj) => { _data.OutPutType.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
                 GUILayout.BeginHorizontal();
                 {
                     GUILayout.Label(GKToyMaker._GetLocalization("Condition Value") + ": ", GUILayout.Width(60));
                     GKEditor.DrawBaseControl(true, _data.CondValue.Value, (obj) => { _data.CondValue.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("YesNodeID") + ": ", GUILayout.Width(60));
+                    GUILayout.Label(_data.IfYesNode.Value.ToString(), GUILayout.Width(60));
+                    GUILayout.Label(GKToyMaker._GetLocalization("NoNodeID") + ": ", GUILayout.Width(60));
+                    GUILayout.Label(_data.IfNoNode.Value.ToString(), GUILayout.Width(60));
                 }
                 GUILayout.EndHorizontal();
             }

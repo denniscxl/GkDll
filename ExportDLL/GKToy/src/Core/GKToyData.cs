@@ -85,7 +85,7 @@ namespace GKToy
                             //var tPropertyDataOwner = ((GKToyVariable)obj).PropertyDataOwner;
                             //((GKToyVariable)obj).PropertyDataOwner = null;
 
-                            variableData.Add(JsonUtility.ToJson(obj));
+                            variableData.Add(JsonUtility.ToJson(obj, true));
                             variableTypeData.Add(objs.Key);
 
                             //((GKToyVariable)obj).PropertyMappingOwner = tPropertyMappingOwner;
@@ -146,7 +146,7 @@ namespace GKToy
                     List<string> tmpNodeData = new List<string>();
                     foreach (var obj in nodeLst.Values)
                     {
-                        tmpNodeData.Add(JsonUtility.ToJson(obj));
+                        tmpNodeData.Add(JsonUtility.ToJson(obj, true));
                         nodeTypeData.Add(((GKToyNode)obj).className);
                     }
                     bool isChanged = false;

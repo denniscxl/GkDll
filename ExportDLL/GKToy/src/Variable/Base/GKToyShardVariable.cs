@@ -1,15 +1,12 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using Newtonsoft.Json;
 
 namespace GKToy
 {
     [System.Serializable]
-    [JsonObject(MemberSerialization.OptIn)]
     public abstract class GKToyShardVariable<T> : GKToyVariable
     {
         [SerializeField]
-        [JsonProperty]
         protected T _value;
         public T Value
         {
