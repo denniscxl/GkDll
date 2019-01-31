@@ -52,6 +52,9 @@ namespace GKToy
         // 双击窗口类型.
         public int doubleClickType = 0;
         // 节点类型;
+        [ExportClient]
+        [ExportServer]
+        [XmlElement("NodeType")]
         public int type = 0;
         #endregion
 

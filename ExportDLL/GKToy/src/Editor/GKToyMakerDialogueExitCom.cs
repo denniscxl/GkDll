@@ -30,8 +30,8 @@ namespace GKToy
             instance = GetWindow<GKToyMakerDialogueExitCom>(GKToyMaker._GetLocalization("Dialogue exit"), true);
             _styleCenrer.alignment = TextAnchor.MiddleCenter;
             _styleRight.alignment = TextAnchor.MiddleRight;
-            instance.minSize = new Vector2(300, 300);
-            instance.maxSize = new Vector2(300, 300);
+            instance.minSize = new Vector2(300, 80);
+            instance.maxSize = new Vector2(300, 80);
             instance._data = null;
         }
 
@@ -48,8 +48,8 @@ namespace GKToy
             {
                 instance = GetWindow<GKToyMakerDialogueExitCom>("", true);
                 wantsMouseMove = true;
-                minSize = new Vector2(200, 300);
-                maxSize = new Vector2(200, 300);
+                minSize = new Vector2(200, 70);
+                maxSize = new Vector2(200, 70);
             }
         }
 

@@ -57,7 +57,6 @@ namespace GKToy
                     EditorUtility.SetDirty(ed);
                 }
             }
-            Backup();
         }
         /// <summary>
         /// 备份数据到文件

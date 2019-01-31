@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Xml.Serialization;
 using System.Collections;
+using System.Xml;
 
 namespace GKToy
 {
@@ -284,7 +285,9 @@ namespace GKToy
                 if (EditorUtility.DisplayDialog(_GetLocalization("Save node"), 
                     _GetLocalization("Save data before proceeding?"), _GetLocalization("OK"), _GetLocalization("Cancel")))
                 {
+                    _ResetScaleData();
                     _overlord.Save();
+                    _overlord.Backup();
                 }
             }
             instance = null;
@@ -507,6 +510,7 @@ namespace GKToy
 
                                     if (!string.IsNullOrEmpty(destPath))
                                     {
+                                        _ResetScaleData();
                                         _overlord.Save();
                                         _CreateData(destPath);
                                     }
@@ -537,6 +541,7 @@ namespace GKToy
                                             destPath = string.Format("{0}/{1}.Asset", toyMakerBase._defaultOverlordPath, id.ToString());
 
                                             // 创建新对象.
+                                            _ResetScaleData();
                                             _overlord.Save();
                                             _CreateData(destPath);
                                         }
@@ -552,6 +557,11 @@ namespace GKToy
                             case 5:
                                 GKToyMakerDialogueExitCom.PopupTaskWindow();
                                 GKToyMakerDialogueExitCom.InitSubData((GKToyDialogueExit)node);
+                                break;
+                            // Dialogue action.
+                            case 6:
+                                GKToyMakerDialogueActionCom.PopupTaskWindow();
+                                GKToyMakerDialogueActionCom.InitSubData((GKToyDialogueAction)node);
                                 break;
                             default:
                                 break;
@@ -710,7 +720,7 @@ namespace GKToy
                     GKToyNodeGroup sourceGroup = (GKToyNodeGroup)CurRenderData.nodeLst[otherGroupId];
                     GKToyNode virtualNode = sourceGroup.FindVirtualOutLinkFromSource(nextNode.id);
                     if (null == virtualNode)
-                        virtualNode = _CreateGroupOutLinkNode(CurNodeIdx++, sourceGroup, nextNode, _curGroup.id);
+                        virtualNode = _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), sourceGroup, nextNode, _curGroup.id);
                     _AddLink(sourceNode, virtualNode, paramKey);
                     if (null == sourceGroup.FindLinkFromOtherNode(_curGroup.id))
                         _AddLink(sourceGroup, _curGroup, string.Empty);
@@ -728,7 +738,7 @@ namespace GKToy
                     GKToyNodeGroup sourceGroup = (GKToyNodeGroup)CurRenderData.nodeLst[otherGroupId];
                     GKToyNode virtualNode = sourceGroup.FindVirtualInLinkFromSource(_selectNode.id);
                     if (null == virtualNode)
-                        virtualNode = _CreateGroupInLinkNode(CurNodeIdx++, sourceGroup, _selectNode, _curGroup.id);
+                        virtualNode = _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), sourceGroup, _selectNode, _curGroup.id);
                     _AddLink(virtualNode, sourceNode, paramKey);
                     if (null == _curGroup.FindLinkFromOtherNode(sourceGroup.id))
                         _AddLink(_curGroup, sourceGroup, string.Empty);
@@ -740,16 +750,16 @@ namespace GKToy
             {
                 if (NodeType.Group == nextNode.nodeType)
                 {
-                    _CreateGroupOutLinkNode(CurNodeIdx++, (GKToyNodeGroup)_selectNode, nextNode, nextNode.id);
-                    _CreateGroupInLinkNode(CurNodeIdx++, (GKToyNodeGroup)nextNode, _selectNode, _selectNode.id);
+                    _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), (GKToyNodeGroup)_selectNode, nextNode, nextNode.id);
+                    _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), (GKToyNodeGroup)nextNode, _selectNode, _selectNode.id);
                 }
                 else if(null == ((GKToyNodeGroup)_selectNode).FindVirtualOutLinkFromSource(nextNode.id))
-                    _CreateGroupOutLinkNode(CurNodeIdx++, (GKToyNodeGroup)_selectNode, nextNode, -1);
+                    _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), (GKToyNodeGroup)_selectNode, nextNode, -1);
                 return;
             }
             // 其他到组.
             if (NodeType.Group == nextNode.nodeType && null == ((GKToyNodeGroup)nextNode).FindVirtualInLinkFromSource(_selectNode.id))
-                _CreateGroupInLinkNode(CurNodeIdx++, (GKToyNodeGroup)nextNode, _selectNode, -1);
+                _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), (GKToyNodeGroup)nextNode, _selectNode, -1);
         }
         /// <summary>
         /// 检测链接是否被点击
@@ -934,6 +944,7 @@ namespace GKToy
                         return;
 
                     // 存储数据源节点.
+                    _ResetScaleData();
                     _overlord.Save();
 
                     var obj = ScriptableObject.CreateInstance<GKToyExternalData>();
@@ -952,7 +963,7 @@ namespace GKToy
                     int shotWidth = (int)(_contentView.width - GUI.skin.verticalScrollbar.fixedWidth);
                     int shotHeight = (int)(_contentView.height - GUI.skin.horizontalScrollbar.fixedHeight);
                     float shotX = _contentView.x;
-                    float shotY = GUI.skin.horizontalScrollbar.fixedHeight + toyMakerBase._layoutSpace * 2;
+                    float shotY = GUI.skin.horizontalScrollbar.fixedHeight + toyMakerBase._layoutSpace * 4;
                     float scaleX = shotWidth / (maxX - minX);
                     float scaleY = shotHeight / (maxY - minY);
                     float shotScale = Mathf.Min(scaleX, scaleY, 1);
@@ -1170,23 +1181,23 @@ namespace GKToy
                 GKFile.GKFileUtil.CreateDirectoryFromFileName(destPath);
 
             // 存储数据源节点.
+            _ResetScaleData();
             _overlord.Save();
 
             GameData gameData = new GameData();
-            GameDataItem tmpItem;
-            List<Type> propTypes = new List<Type>();
+            NodeElement tmpItem;
             foreach (GKToyNode node in CurRenderData.nodeLst.Values)
             {
+                tmpItem = new NodeElement();
                 if (NodeType.Group == node.nodeType || NodeType.VirtualNode == node.nodeType)
                     continue;
-                tmpItem = new GameDataItem(node.type);
                 if (1 == int.Parse(dataType))
-                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportClientAttribute), propTypes);
+                    tmpItem.attrs = _GetFieldsWithAttribute(node, typeof(ExportClientAttribute));
                 else if (2 == int.Parse(dataType))
-                    tmpItem.properties = _GetFieldsWithAttribute(node, typeof(ExportServerAttribute), propTypes);
-                gameData.data.Add(tmpItem);
+                    tmpItem.attrs = _GetFieldsWithAttribute(node, typeof(ExportServerAttribute));
+                gameData.Add(tmpItem);
             }
-            var serializer = new XmlSerializer(typeof(GameData), propTypes.ToArray());
+            var serializer = new XmlSerializer(typeof(GameData));
             var stream = new FileStream(destPath, FileMode.Create);
             try
             {
@@ -1202,9 +1213,8 @@ namespace GKToy
         /// </summary>
         /// <param name="obj">读取的实例</param>
         /// <param name="attribute">Attribute</param>
-        /// <param name="types">序列化时需要额外定义的类型</param>
         /// <returns>属性列表</returns>
-        List<GameDataProperty> _GetFieldsWithAttribute(object obj, Type attribute, List<Type> types)
+        List<NodeAttr> _GetFieldsWithAttribute(object obj, Type attribute)
         {
             if (!obj.GetType().IsClass)
                 return null;
@@ -1217,7 +1227,7 @@ namespace GKToy
                 type = type.BaseType;
             } while (null != type);
             object[] attrs;
-            List<GameDataProperty> fields = new List<GameDataProperty>();
+            List<NodeAttr> fields = new List<NodeAttr>();
             foreach (FieldInfo field in allFields)
             {
                 attrs = field.GetCustomAttributes(attribute, true);
@@ -1225,15 +1235,14 @@ namespace GKToy
                 {
                     object val = field.GetValue(obj);
                     Type propType = val.GetType();
-                    _DealWithAttributes(ref val, ref propType, types);
                     attrs = field.GetCustomAttributes(typeof(XmlElementAttribute), true);
                     if (0 != attrs.Length)
                     {
-                        fields.Add(new GameDataProperty(((XmlElementAttribute)attrs[0]).ElementName, val));
+                        fields.Add(new NodeAttr(((XmlElementAttribute)attrs[0]).ElementName, _DealWithAttributes(val, propType)));
                     }
                     else
                     {
-                        fields.Add(new GameDataProperty(field.Name, val));
+                        fields.Add(new NodeAttr(field.Name, _DealWithAttributes(val, propType)));
                     }
                 }
             }
@@ -1252,15 +1261,14 @@ namespace GKToy
                 {
                     object val = property.GetValue(obj, null);
                     Type propType = val.GetType();
-                    _DealWithAttributes(ref val, ref propType, types);
                     attrs = property.GetCustomAttributes(typeof(XmlElementAttribute), true);
                     if (0 != attrs.Length)
                     {
-                        fields.Add(new GameDataProperty(((XmlElementAttribute)attrs[0]).ElementName, val));
+                        fields.Add(new NodeAttr(((XmlElementAttribute)attrs[0]).ElementName, _DealWithAttributes(val, propType)));
                     }
                     else
                     {
-                        fields.Add(new GameDataProperty(property.Name, val));
+                        fields.Add(new NodeAttr(property.Name, _DealWithAttributes(val, propType)));
                     }
                 }
             }
@@ -1269,30 +1277,80 @@ namespace GKToy
             else
                 return fields;
         }
-
-        void _DealWithAttributes(ref object val, ref Type propType, List<Type> types)
+        /// <summary>
+        /// 序列化结点属性值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="propType"></param>
+        /// <returns></returns>
+        string _DealWithAttributes(object val, Type propType)
         {
             // 提取自定义变量的值.
             if (propType.IsSubclassOf(typeof(GKToyVariable)))
             {
-                var v = (GKToyVariable)val;
-                val = v.GetValue();
-                propType = val.GetType();
-            }
-            // 添加需要额外定义的序列化类型.
-            if (!types.Contains(propType) && ("GKToy" == propType.Namespace || val is IList))
-            {
-                types.Add(propType);
-            }
-            // 给Link添加nextType属性.
-            if (propType == typeof(List<Link>))
-            {
-                foreach (Link link in (List<Link>)val)
+                var v = ((GKToyVariable)val).GetValue();
+                if (v is IList)
                 {
-                    link.nextType = ((GKToyNode)CurRenderData.nodeLst[link.next]).type;
+                    string valStr = "";
+                    bool seperator = false;
+                    foreach (var valElement in (IList)v)
+                    {
+                        if (seperator)
+                        {
+                            valStr = string.Format("{0};{1}", valStr, valElement.ToString());
+                        }
+                        else
+                        {
+                            valStr = string.Format("{0}{1}", valStr, valElement.ToString());
+                            seperator = true;
+                        }
+                    }
+                    return valStr;
+                }
+                else
+                {
+                    return v.ToString();
                 }
             }
-            
+            // 序列化link.
+            if (propType == typeof(List<Link>))
+            {
+                string valStr = "";
+                bool seperator = false;
+                foreach (Link link in (List<Link>)val)
+                {
+                    if (seperator)
+                    {
+                        valStr = string.Format("{0};{1}", valStr, link.id);
+                    }
+                    else
+                    {
+                        valStr = string.Format("{0}{1}", valStr, link.id);
+                        seperator = true;
+                    }
+                }
+                return valStr;
+            }
+            // 序列化其他list.
+            if(val is IList)
+            {
+                string valStr = "";
+                bool seperator = false;
+                foreach (var valElement in (IList)val)
+                {
+                    if (seperator)
+                    {
+                        valStr = string.Format("{0};{1}", valStr, valElement.ToString());
+                    }
+                    else
+                    {
+                        valStr = string.Format("{0}{1}", valStr, valElement.ToString());
+                        seperator = true;
+                    }
+                }
+                return valStr;
+            }
+            return val.ToString();
         }
         #endregion
 
@@ -1393,7 +1451,7 @@ namespace GKToy
                                 ((GKToyGroupLink)link.Key).linkNodeIds.Add(l.node.id);
                             else if (NodeType.VirtualNode == l.node.nodeType)
                                 ((GKToyGroupLink)l.node).linkNodeIds.Add(link.Key.id);
-                            link.Key.AddLink(CurLinkIdx++, l.node, height, l.parmKey);
+                            link.Key.AddLink(_GenerateGUID(CurLinkIdx++), l.node, height, l.parmKey);
                         }
                     }
                 }
@@ -1660,7 +1718,7 @@ namespace GKToy
             {
                 _tmpSelectNodes.Clear();
                 Type t = typeof(GKToyNode);
-                GKToyNode newNode = t.Assembly.CreateInstance(type, true, System.Reflection.BindingFlags.Default, null, new object[] { CurNodeIdx }, null, null) as GKToyNode;
+                GKToyNode newNode = t.Assembly.CreateInstance(type, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
                 newNode.className = type;
                 newNode.pos.x = (_contentScrollPos.x + toyMakerBase._minWidth * 0.5f) / Scale;
                 newNode.pos.y = (_contentScrollPos.y + toyMakerBase._minHeight * 0.5f) / Scale;
@@ -1693,7 +1751,7 @@ namespace GKToy
                     {
                         _tmpSelectNodes.Clear();
                         Type t = typeof(GKToyNode);
-                        GKToyNode newNode = t.Assembly.CreateInstance(node.key, true, System.Reflection.BindingFlags.Default, null, new object[] { CurNodeIdx }, null, null) as GKToyNode;
+                        GKToyNode newNode = t.Assembly.CreateInstance(node.key, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
                         newNode.className = node.key;
                         newNode.pos.x = (_contentScrollPos.x + toyMakerBase._minWidth * 0.5f) / Scale;
                         newNode.pos.y = (_contentScrollPos.y + toyMakerBase._minHeight * 0.5f) / Scale;
@@ -2159,21 +2217,23 @@ namespace GKToy
             node.rect = _tmpRect;
             //判断是正在否移动对象.
             toyMakerBase._nodeStyle.fontSize = (int)(10 * Scale);
+            toyMakerBase._groupNodeStyle.fontSize = (int)(10 * Scale);
+            toyMakerBase._groupLinkStyle.fontSize = (int)(10 * Scale);
             toyMakerBase._parmStyle.fontSize = (int)(10 * Scale);
             string strTypeName = null == node.outputObject ? "Null" : node.outputObject.GetType().Name;
             _tmpIONode = node;
             switch (node.nodeType)
             {
                 case NodeType.Group:
-                    GUI.Label(_tmpRect, node.name, toyMakerBase._groupNodeStyle);
+                    GUI.Label(_tmpRect, string.Format("{0}\n[{1}]", node.name, node.id), toyMakerBase._groupNodeStyle);
                     break;
                 case NodeType.VirtualNode:
-                    GUI.Label(_tmpRect, node.name, toyMakerBase._groupLinkStyle);
+                    GUI.Label(_tmpRect, string.Format("{0}\n[{1}]", node.name, node.id), toyMakerBase._groupLinkStyle);
                     if (GroupLinkType.LinkOut == ((GKToyGroupLink)node).linkType)
                         _tmpIONode = (GKToyNode)CurRenderData.nodeLst[((GKToyGroupLink)node).sourceNodeId];
                     break;
                 default:
-                    GUI.Label(_tmpRect, string.Format("{0}\n{1}", node.name, strTypeName), toyMakerBase._nodeStyle);
+                    GUI.Label(_tmpRect, string.Format("{0}\n[{1}]\n{2}", node.name, node.id, strTypeName), toyMakerBase._nodeStyle);
                     break;
             }
             _tmpRect.y += _tmpRect.height;
@@ -2857,7 +2917,7 @@ namespace GKToy
             Vector2 mousePos = (Vector2)((object[])userData)[0];
             string key = (string)((object[])userData)[1];
             Type t = typeof(GKToyNode);
-            GKToyNode node = t.Assembly.CreateInstance(key, true, System.Reflection.BindingFlags.Default, null, new object[] { CurNodeIdx }, null, null) as GKToyNode;
+            GKToyNode node = t.Assembly.CreateInstance(key, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
             node.className = key;
             node.pos.x = (mousePos.x) / Scale;
             node.pos.y = (mousePos.y) / Scale;
@@ -2867,7 +2927,7 @@ namespace GKToy
         protected void _HandleMenuCollapseNode(object userData)
         {
             Vector2 mousePos = (Vector2)userData;
-            GKToyNodeGroup node = new GKToyNodeGroup(CurNodeIdx);
+            GKToyNodeGroup node = new GKToyNodeGroup(_GenerateGUID(CurNodeIdx++));
             node.pos.x = (mousePos.x) / Scale;
             node.pos.y = (mousePos.y) / Scale;
             _CreateNodeGroup(node);
@@ -2923,7 +2983,7 @@ namespace GKToy
         // 增加节点.
         protected void _CreateNode(GKToyNode node)
         {
-            node.id = CurNodeIdx++;
+            node.id = node.ID;
             if (GKToyMakerTypeManager.Instance().typeAttributeDict.ContainsKey(node.className))
             {
                 string[] paths = GKToyMakerTypeManager.Instance().typeAttributeDict[node.className][_language.ToString()].treePath.Split('/');
@@ -2935,7 +2995,7 @@ namespace GKToy
 						node.nodeType = NodeType.Condition;
                     else if (paths[0] == _GetLocalization("Decoration"))
                         node.nodeType = NodeType.Decoration;
-                    node.name = string.Format("{0}-{1}", paths[paths.Length - 1], node.id);
+                    node.name = string.Format("{0}-{1}", paths[paths.Length - 1], CurNodeIdx);
                 }
                 else
                 {
@@ -3080,7 +3140,7 @@ namespace GKToy
             _selectNodes.Clear();
             _selectLink = null;
             _drawingNodes.Clear();
-            GKToyNode node = new GKToyStart(CurNodeIdx);
+            GKToyNode node = new GKToyStart(_GenerateGUID(CurNodeIdx++));
             node.className = "GKToy." + node.GetType().Name;
             node.pos.x = (_contentScrollPos.x + toyMakerBase._minWidth * 0.5f) / Scale;
             node.pos.y = (_contentScrollPos.y + toyMakerBase._minHeight * 0.5f) / Scale;
@@ -3189,7 +3249,7 @@ namespace GKToy
             node.className = "GKToy.GKToyNodeGroup";
             node.nodeType = NodeType.Group;
             node.subNodes.AddRange(_selectNodes.Select(x => x.id));
-            node.id = CurNodeIdx++;
+            node.id = node.ID;
             node.comment = "";
             _GenerateLinkForGroup(node, _selectNodes);
             _newNodeLst.Add(node.id, node);
@@ -3211,7 +3271,7 @@ namespace GKToy
             int inLinkCount = group.GetAllInNodes().Count + count;
             GKToyGroupLink linkNode = group.AddGroupLink(id, sourceNode.id, true, otherGroupId);
             linkNode.Init(_overlord);
-            linkNode.name = string.Format("{0}-{1}\n{2}->", _GetLocalization("External Link"), id, sourceNode.name);
+            linkNode.name = string.Format("{0}-{1}\n{2}->", _GetLocalization("External Link"), CurNodeIdx, sourceNode.name);
             linkNode.pos.x = _contentView.x + toyMakerBase._layoutSpace + inLinkCount / (int)(_contentView.height / toyMakerBase._nodeMinHeight) * toyMakerBase._nodeMinWidth;
             linkNode.pos.y = _contentView.y + toyMakerBase._layoutSpace + inLinkCount % (_contentView.height / toyMakerBase._nodeMinHeight) * toyMakerBase._nodeMinHeight;
             linkNode.outputObject = sourceNode.outputObject;
@@ -3231,7 +3291,7 @@ namespace GKToy
             int outLinkCount = group.GetAllOutNodes().Count + count;
             GKToyGroupLink linkNode = group.AddGroupLink(id, sourceNode.id, false, otherGroupId);
             linkNode.Init(_overlord);
-            linkNode.name = string.Format("{0}-{1}\n->{2}", _GetLocalization("External Link"), id, sourceNode.name);
+            linkNode.name = string.Format("{0}-{1}\n->{2}", _GetLocalization("External Link"), CurNodeIdx, sourceNode.name);
             linkNode.pos.x = _contentView.xMax - toyMakerBase._layoutSpace - toyMakerBase._nodeMinWidth
                 - outLinkCount / (int)(_contentView.height / toyMakerBase._nodeMinHeight) * toyMakerBase._nodeMinWidth;
             linkNode.pos.y = _contentView.y + toyMakerBase._layoutSpace
@@ -3372,7 +3432,7 @@ namespace GKToy
                     }
                     else
                     {
-                        newLinkNode = _CreateGroupOutLinkNode(CurNodeIdx++, node, linkNode, -1, outCount++);
+                        newLinkNode = _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), node, linkNode, -1, outCount++);
                         _AddLink(subNode, newLinkNode, link.parmKey);
                         _AddLink(node, linkNode, string.Empty);
                         newOutNode.Add(linkNode, newLinkNode);
@@ -3405,7 +3465,7 @@ namespace GKToy
                                 }
                                 else
                                 {
-                                    newLinkNode = _CreateGroupOutLinkNode(CurNodeIdx++, node, linkNode, otherGroup.id, outCount++);
+                                    newLinkNode = _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), node, linkNode, otherGroup.id, outCount++);
                                     _AddLink((GKToyNode)CurRenderData.nodeLst[groupLink.sourceNodeId], newLinkNode, link.parmKey);
                                     newOutNode.Add(linkNode, newLinkNode);
                                 }
@@ -3428,7 +3488,7 @@ namespace GKToy
                                 }
                                 else
                                 {
-                                    newLinkNode = _CreateGroupInLinkNode(CurNodeIdx++, node, linkNode, otherGroup.id, inCount++);
+                                    newLinkNode = _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), node, linkNode, otherGroup.id, inCount++);
                                     _AddLink(newLinkNode, (GKToyNode)CurRenderData.nodeLst[groupLink.sourceNodeId], linkNode.FindLinkFromNode(groupLink.sourceNodeId).parmKey);
                                     newInNode.Add(linkNode, newLinkNode);
                                 }
@@ -3455,7 +3515,7 @@ namespace GKToy
                         }
                         else
                         {
-                            newLinkNode = _CreateGroupInLinkNode(CurNodeIdx++, node, otherNode, -1, inCount++);
+                            newLinkNode = _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), node, otherNode, -1, inCount++);
                             _AddLink(newLinkNode, (GKToyNode)CurRenderData.nodeLst[link.next], link.parmKey);
                             newInNode.Add(otherNode, newLinkNode);
                         }
@@ -3569,12 +3629,12 @@ namespace GKToy
             groupLink.sourceNodeId = newSourceNode.id;
             if (GroupLinkType.LinkIn == groupLink.linkType)
             {
-                groupLink.name = string.Format("{0}-{1}\n{2}->", _GetLocalization("External Link"), groupLink.id, newSourceNode.name);
+                groupLink.name = string.Format("{0}\n{1}->", groupLink.name.Substring(0, groupLink.name.IndexOf("\n")), newSourceNode.name);
                 groupLink.outputObject = newSourceNode.outputObject;
             }
             else
             {
-                groupLink.name = string.Format("{0}-{1}\n->{2}", _GetLocalization("External Link"), groupLink.id, newSourceNode.name);
+                groupLink.name = string.Format("{0}\n->{1}", groupLink.name.Substring(0, groupLink.name.IndexOf("\n")), newSourceNode.name);
                 _CopyParamFromNode(groupLink, newSourceNode);
             }
         }
@@ -3624,7 +3684,7 @@ namespace GKToy
                         }
                         else
                         {
-                            newLinkNode = _CreateGroupInLinkNode(CurNodeIdx++, group, node, -1, inCount++);
+                            newLinkNode = _CreateGroupInLinkNode(_GenerateGUID(CurNodeIdx++), group, node, -1, inCount++);
                             _tmpAddDrawingNodes.Add(newLinkNode);
                             _AddLink(newLinkNode, linkedNode, link.parmKey);
                             _AddLink(node, group, string.Empty);
@@ -3650,7 +3710,7 @@ namespace GKToy
                         }
                         else
                         {
-                            newLinkNode = _CreateGroupOutLinkNode(CurNodeIdx++, group, linkedNode, -1, outCount++);
+                            newLinkNode = _CreateGroupOutLinkNode(_GenerateGUID(CurNodeIdx++), group, linkedNode, -1, outCount++);
                             _tmpAddDrawingNodes.Add(newLinkNode);
                             _AddLink(subNode, newLinkNode, link.parmKey);
                             _AddLink(group, linkedNode, string.Empty);
@@ -3835,7 +3895,9 @@ namespace GKToy
                         if (_overlord != null)
                         {
                             Event.current.Use();
+                            _ResetScaleData();
                             _overlord.Save();
+                            _overlord.Backup();
                             ShowNotification(new GUIContent(_GetLocalization("Data saved")));
                         }
                         Event.current.Use();
@@ -3942,7 +4004,7 @@ namespace GKToy
         protected GKToyNode _CloneNode(GKToyNode node, int offset)
         {
             Type t = typeof(GKToyNode);
-            GKToyNode cloneNode = t.Assembly.CreateInstance(node.className, true, System.Reflection.BindingFlags.Default, null, new object[] { CurNodeIdx }, null, null) as GKToyNode;
+            GKToyNode cloneNode = t.Assembly.CreateInstance(node.className, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
             cloneNode.className = node.className;
             cloneNode.pos.x = node.pos.x + node.width * offset;
             cloneNode.pos.y = node.pos.y + node.height * offset;
@@ -3952,12 +4014,17 @@ namespace GKToy
                 cloneNode.propStates[i] = node.propStates[i];
             for (int i = 0; i < node.ioStates.Length; ++i)
                 cloneNode.ioStates[i] = node.ioStates[i];
+            PropertyInfo[] props = cloneNode.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            foreach(PropertyInfo prop in props)
+            {
+                prop.SetValue(cloneNode, prop.GetValue(node, null), null);
+            }
             return cloneNode;
         }
         // 复制组.
         protected GKToyNode _CloneGroup(GKToyNodeGroup group)
         {
-            GKToyNodeGroup cloneGroup = new GKToyNodeGroup(CurNodeIdx);
+            GKToyNodeGroup cloneGroup = new GKToyNodeGroup(_GenerateGUID(CurNodeIdx++));
             cloneGroup.pos.x = group.pos.x + group.width;
             cloneGroup.pos.y = group.pos.y + group.height;
             cloneGroup.Init(_overlord);
@@ -3965,7 +4032,7 @@ namespace GKToy
             cloneGroup.name = string.Format("Group-{0}", CurNodeIdx);
             cloneGroup.className = "GKToy.GKToyNodeGroup";
             cloneGroup.nodeType = NodeType.Group;
-            cloneGroup.id = CurNodeIdx++;
+            cloneGroup.id = cloneGroup.ID;
             _newNodeLst.Add(cloneGroup.id, cloneGroup);
             _tmpSelectNodes.Add(cloneGroup);
             _tmpAddDrawingNodes.Add(cloneGroup);
@@ -3978,18 +4045,18 @@ namespace GKToy
             GKToyGroupLink cloneLink;
             if (GroupLinkType.LinkIn == groupLink.linkType)
             {
-                cloneLink = group.AddGroupLink(CurNodeIdx, sourceNode.id, true, otherGroupId);
+                cloneLink = group.AddGroupLink(_GenerateGUID(CurNodeIdx++), sourceNode.id, true, otherGroupId);
                 cloneLink.name = string.Format("{0}-{1}\n{2}->", _GetLocalization("External Link"), CurNodeIdx, sourceNode.name);
                 cloneLink.outputObject = sourceNode.outputObject;
             }
             else
             {
-                cloneLink = group.AddGroupLink(CurNodeIdx, sourceNode.id, false, otherGroupId);
+                cloneLink = group.AddGroupLink(_GenerateGUID(CurNodeIdx++), sourceNode.id, false, otherGroupId);
                 cloneLink.name = string.Format("{0}-{1}\n->{2}", _GetLocalization("External Link"), CurNodeIdx, sourceNode.name);
                 _CopyParamFromNode(cloneLink, sourceNode);
             }
             cloneLink.Init(_overlord);
-            _newGroupLinkLst.Add(CurNodeIdx++, cloneLink);
+            _newGroupLinkLst.Add(cloneLink.id, cloneLink);
             cloneLink.pos.x = groupLink.pos.x;
             cloneLink.pos.y = groupLink.pos.y;
             return cloneLink;
@@ -4068,8 +4135,6 @@ namespace GKToy
                 if (null == _overlord || assets[0] != _overlord)
                 {
                     _ResetSelected((GKToyBaseOverlord)assets[0]);
-                    _isScale = true;
-                    _UpdateLinks();
                     Repaint();
                 }
             }
@@ -4080,6 +4145,7 @@ namespace GKToy
         {
             if (null != _overlord)
             {
+                _ResetScaleData();
                 _overlord.Save();
             }
             _overlord = target;
@@ -4112,6 +4178,42 @@ namespace GKToy
             }
             _UpdateDataNames();
         }
+        /// <summary>
+        /// 关闭数据前，计算Scale为1时的节点和链接位置
+        /// </summary>
+        protected void _ResetScaleData()
+        {
+            if (1 == Scale)
+                return;
+            Scale = 1;
+            _curGroup = null;
+            _SetDrawingNodes();
+            foreach (GKToyNode node in _drawingNodes)
+            {
+                // 计算Node宽高.
+                int w = name.Length * toyMakerBase._charWidth + 4;
+                if (w <= toyMakerBase._nodeMinWidth)
+                    w = toyMakerBase._nodeMinWidth;
+                node.width = w;
+                node.height = toyMakerBase._nodeMinHeight;
+                // Right.
+                _tmpRect.width = 10;
+                _tmpRect.height = (node.height - 24);
+                _tmpRect.x = (node.width + node.pos.x - 6);
+                _tmpRect.y = (node.height * 0.5f + node.pos.y) - _tmpRect.height * 0.5f;
+                node.outputRect = _tmpRect;
+                // Left.
+                _tmpRect.x = (node.pos.x - 6);
+                node.inputRect = _tmpRect;
+                // Bg.
+                _tmpRect.width = node.width;
+                _tmpRect.height = node.height;
+                _tmpRect.x = node.pos.x;
+                _tmpRect.y = node.pos.y;
+                node.rect = _tmpRect;
+            }
+            _UpdateAllLinks();
+        }
 
         // 创建实例.
         virtual protected void _CreateData(string path)
@@ -4137,13 +4239,21 @@ namespace GKToy
             // 初始化首次数据.
             Selection.activeGameObject = go;
             _ResetSelected(tmpOverload);
-            GKToyNode node = new GKToyStart(CurNodeIdx);
+            GKToyNode node = new GKToyStart(_GenerateGUID(CurNodeIdx++));
             node.className = "GKToy." + node.GetType().Name;
             node.pos.x = (_contentScrollPos.x + toyMakerBase._minWidth * 0.5f) / Scale;
             node.pos.y = (_contentScrollPos.y + toyMakerBase._minHeight * 0.5f) / Scale;
             _CreateNode(node);
             _overlord.SavePrefab(toyMakerBase._defaultOverlordPath);
         }
+        /// <summary>
+        /// 生成唯一ID
+        /// </summary>
+        protected int _GenerateGUID(int _id)
+        {
+            return ((DateTime.Now.Millisecond & 32767) << 15) | (_id & 32767);
+        }
+
 #if UNITY_2017_2_OR_NEWER
         private void _SaveDataWhenPlayModeChange(PlayModeStateChange state)
         {
@@ -4151,6 +4261,7 @@ namespace GKToy
             {
                 if (_overlord != null)
                 {
+                    _ResetScaleData();
                     _overlord.Save();
                 }
             }
@@ -4165,11 +4276,12 @@ namespace GKToy
             }
         }
 #else
-		private void SaveDataWhenPlayModeChange()
+        private void SaveDataWhenPlayModeChange()
 		{
 			if (!EditorApplication.isPlaying && _overlord != null)
 			{
-				_overlord.Save();
+                _ResetScaleData();
+                _overlord.Save();
             }
 			else if(null == instance)
 			{
@@ -4217,45 +4329,51 @@ namespace GKToy
         }
 
         [Serializable]
-        [XmlRoot("GameData")]
-        public class GameData
+        [XmlRoot("root")]
+        public class GameData : List<NodeElement>, IXmlSerializable
         {
-            public List<GameDataItem> data;
 
-            public GameData()
+            public System.Xml.Schema.XmlSchema GetSchema()
             {
-                data = new List<GameDataItem>();
+                return null;
+            }
+
+            public void ReadXml(XmlReader reader) { }
+            public void WriteXml(XmlWriter writer)
+            {
+                foreach (NodeElement ele in this)
+                {
+                    writer.WriteStartElement("node");
+                    foreach (NodeAttr attr in ele.attrs)
+                    {
+                        writer.WriteAttributeString(attr.name, attr.val);
+                    }
+                    writer.WriteEndElement();
+                }
             }
         }
 
-        /// <summary>
-        /// 数据结构-游戏数据导出
-        /// </summary>
-        [Serializable]
-        public class GameDataItem
-        {
-            public int type;
-            public List<GameDataProperty> properties;
+        public class NodeElement
+        { 
+            public List<NodeAttr> attrs;
 
-            public GameDataItem() { }
-            public GameDataItem(int _type)
+            public NodeElement()
             {
-                type = _type;
-                properties = new List<GameDataProperty>();
+                attrs = null;
             }
         }
 
-        [Serializable]
-        public class GameDataProperty
+        public class NodeAttr
         {
             public string name;
-            public object value;
+            public string val;
+            // XmlSerializer required parameterless constructor
+            public NodeAttr() : this(string.Empty, string.Empty) { }
 
-            public GameDataProperty() { }
-            public GameDataProperty(string _name, object _value)
+            public NodeAttr(string _name, string _val)
             {
                 name = _name;
-                value = _value;
+                val = _val;
             }
         }
     }

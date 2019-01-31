@@ -13,8 +13,8 @@ namespace GKToy
 
         // 按钮内容.
         [SerializeField]
-        [ExportClient]
         private GKToySharedString _menuText = new GKToySharedString();
+        [ExportClient]
         public GKToySharedString MenuText
         {
             get { return _menuText; }
@@ -23,7 +23,7 @@ namespace GKToy
         
         public GKToyDialogueExit(int _id) : base(_id)
         {
-            type = 4;
+            type = 5;
             doubleClickType = 5;
         }
         

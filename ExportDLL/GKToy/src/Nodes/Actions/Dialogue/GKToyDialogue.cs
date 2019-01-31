@@ -87,31 +87,6 @@ namespace GKToy
             set { _animationRes = value; }
         }
 
-        // 行为.
-        [SerializeField]
-        private GKToySharedInt _actionRes = new GKToySharedInt();
-        [ExportClient]
-        public GKToySharedInt ActionRes
-        {
-            get { return _actionRes; }
-            set { _actionRes = value; }
-        }
-
-        // 行为值.
-        [SerializeField]
-        private GKToySharedString _actionValue = new GKToySharedString();
-        [ExportClient]
-        public GKToySharedString ActionValue
-        {
-            get { return _actionValue; }
-            set { _actionValue = value; }
-        }
-
-        override public void Init(GKToyBaseOverlord ovelord)
-		{
-			base.Init(ovelord);
-        }
-
         // 声音类型.
         [SerializeField]
         private GKToySharedInt _soundRes = new GKToySharedInt();
@@ -131,6 +106,12 @@ namespace GKToy
             get { return _soundValue; }
             set { _soundValue = value; }
         }
+
+        override public void Init(GKToyBaseOverlord ovelord)
+		{
+			base.Init(ovelord);
+        }
+        
 
         override public int Update()
 		{

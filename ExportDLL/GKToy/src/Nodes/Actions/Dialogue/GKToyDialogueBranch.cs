@@ -12,7 +12,7 @@ namespace GKToy
     {
         public GKToyDialogueBranch(int _id) : base(_id)
         {
-            type = 3;
+            type = 2;
         }
         
         override public void Init(GKToyBaseOverlord ovelord)

@@ -61,8 +61,8 @@ namespace GKToy
             instance = GetWindow<GKToyMakerDialogueConditionCom>(GKToyMaker._GetLocalization("Dialogue condition"), true);
             _styleCenrer.alignment = TextAnchor.MiddleCenter;
             _styleRight.alignment = TextAnchor.MiddleRight;
-            instance.minSize = new Vector2(300, 300);
-            instance.maxSize = new Vector2(300, 300);
+            instance.minSize = new Vector2(300, 100);
+            instance.maxSize = new Vector2(300, 100);
             instance._data = null;
         }
 
@@ -79,8 +79,8 @@ namespace GKToy
             {
                 instance = GetWindow<GKToyMakerDialogueConditionCom>("", true);
                 wantsMouseMove = true;
-                minSize = new Vector2(200, 300);
-                maxSize = new Vector2(200, 300);
+                minSize = new Vector2(200, 100);
+                maxSize = new Vector2(200, 100);
             }
         }
 
@@ -103,6 +103,13 @@ namespace GKToy
                 }
                 GUILayout.EndHorizontal();
 
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(GKToyMaker._GetLocalization("Condition Value") + ": ", GUILayout.Width(60));
+                    GKEditor.DrawBaseControl(true, _data.CondValue.Value, (obj) => { _data.CondValue.SetValue(obj); });
+                }
+                GUILayout.EndHorizontal();
+
                 GKEditor.DrawInspectorSeperator();
 
                 GUILayout.BeginHorizontal();
@@ -113,13 +120,6 @@ namespace GKToy
                     if (seleIdx != _data.OutPutType.Value)
                         _data.OutPutType.SetValue(seleIdx);
                     GKEditor.DrawBaseControl(true, _data.OutPutType.Value, (obj) => { _data.OutPutType.SetValue(obj); });
-                }
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                {
-                    GUILayout.Label(GKToyMaker._GetLocalization("Condition Value") + ": ", GUILayout.Width(60));
-                    GKEditor.DrawBaseControl(true, _data.CondValue.Value, (obj) => { _data.CondValue.SetValue(obj); });
                 }
                 GUILayout.EndHorizontal();
 

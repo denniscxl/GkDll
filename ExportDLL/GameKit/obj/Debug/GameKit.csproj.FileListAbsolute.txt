@@ -1,0 +1,16 @@
+D:\Projects\Git\ToyMaker\ExportDLL\Bin\src\Data\JsonNet\Newtonsoft.Json.dll.mdb
+D:\Projects\Git\ToyMaker\ExportDLL\Bin\GameKit.dll
+D:\Projects\Git\ToyMaker\ExportDLL\Bin\GameKit.pdb
+D:\Projects\Git\ToyMaker\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CoreCompileInputs.cache
+D:\Projects\Git\ToyMaker\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CopyComplete
+D:\Projects\Git\ToyMaker\ExportDLL\GameKit\obj\Debug\GameKit.dll
+D:\Projects\Git\ToyMaker\ExportDLL\GameKit\obj\Debug\GameKit.pdb
+D:\Projects\Git\ToyMaker\ExportDLL\GameKit\obj\Debug\GameKit.csprojAssemblyReference.cache
+D:\Projects\Git\GKDllExport\ExportDLL\Bin\src\Data\JsonNet\Newtonsoft.Json.dll.mdb
+D:\Projects\Git\GKDllExport\ExportDLL\Bin\GameKit.dll
+D:\Projects\Git\GKDllExport\ExportDLL\Bin\GameKit.pdb
+D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CoreCompileInputs.cache
+D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CopyComplete
+D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.dll
+D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.pdb
+D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csprojAssemblyReference.cache

@@ -14,13 +14,14 @@ namespace GKToy
         {
             // Dialogue condition.
             doubleClickType = 4;
-            type = 2;
+            type = 3;
         }
 
         // 条件类型.
         [SerializeField]
         private GKToySharedInt _condPara = new GKToySharedInt();
         [ExportClient]
+        [ExportServer]
         public GKToySharedInt CondPara
         {
             get { return _condPara; }
@@ -31,6 +32,7 @@ namespace GKToy
         [SerializeField]
         private GKToySharedInt _condValue = new GKToySharedInt();
         [ExportClient]
+        [ExportServer]
         public GKToySharedInt CondValue
         {
             get { return _condValue; }
@@ -41,6 +43,7 @@ namespace GKToy
         [SerializeField]
         private GKToySharedInt _ifYesNode = new GKToySharedInt();
 		[ExportClient]
+        [ExportServer]
         public GKToySharedInt IfYesNode
         {
             get { return _ifYesNode; }
@@ -51,6 +54,7 @@ namespace GKToy
         [SerializeField]
         private GKToySharedInt _ifNoNode = new GKToySharedInt();
 		[ExportClient]
+        [ExportServer]
         public GKToySharedInt IfNoNode
         {
             get { return _ifNoNode; }
@@ -61,6 +65,7 @@ namespace GKToy
         [SerializeField]
         private GKToySharedInt _outPutType = new GKToySharedInt();
 		[ExportClient]
+        [ExportServer]
         public GKToySharedInt OutPutType
         {
             get { return _outPutType; }

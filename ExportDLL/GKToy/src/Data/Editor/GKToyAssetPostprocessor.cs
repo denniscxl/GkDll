@@ -34,11 +34,11 @@ namespace GKToy
                             Debug.Log("asset" + assetFile);
                             if (File.Exists(assetFile))
                             {
-                            GKToyExternalData assetData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(assetFile.Substring(assetFile.IndexOf("Assets")));
-                            GKToyData tData = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(file).Replace("\t\n", "\\n"));
-                            tData.Init(null);
-                            assetData.data = tData;
-                            Debug.Log(string.Format("Load changed backup file: {0}", file));
+                                GKToyExternalData assetData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(assetFile.Substring(assetFile.IndexOf("Assets")));
+                                GKToyData tData = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(file).Replace("\t\n", "\\n"));
+                                tData.Init(null);
+                                assetData.data = tData;
+                                Debug.Log(string.Format("Load changed backup file: {0}", file));
                             }
                             else
                             {

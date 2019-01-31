@@ -42,10 +42,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\UnityEngine\u3d2018_2_5f1\UnityEngine.dll</HintPath>
+      <HintPath>..\UnityEngineDLL\u3d2018_2_5f1\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\UnityEngine\u3d2018_2_5f1\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\UnityEngineDLL\u3d2018_2_5f1\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
