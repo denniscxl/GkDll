@@ -34,6 +34,8 @@ namespace GKToy
         public bool isMove;
         // 属性反射信息.
         public PropertyInfo[] props;
+        // 属性名称集合.
+        public string[] propNames;
         // 当前属性是否使用全局变量.
         public int [] propStates;
         // 输入输出标记. 1 Input 2 Output 4 Need 8 OptionSwitch.
@@ -42,7 +44,7 @@ namespace GKToy
         public bool[] propLock;
         [ExportClient]
         [ExportServer]
-        [XmlElement("Links")]
+        [XmlElement("NextNode")]
         public List<Link> links = new List<Link>();
         public List<Link> otherLinks = new List<Link>();
         public GKNodeStateMachine machine;
@@ -56,6 +58,11 @@ namespace GKToy
         [ExportServer]
         [XmlElement("NodeType")]
         public int type = 0;
+        // 字面id，显示在界面上.
+        public virtual int LiteralId
+        {
+            get { return id; }
+        }
         #endregion
 
         #region PrivateField
@@ -77,28 +84,30 @@ namespace GKToy
             var fs = t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if(null == propStates)
             {
+                propNames = new string[props.Length];
                 propStates = new int[props.Length];
                 ioStates = new int[props.Length];
                 propLock = new bool[props.Length];
                 for (int i = 0; i < props.Length; i++)
                 {
+                    propNames[i] = props[i].Name;
                     propStates[i] = -1;
                     ioStates[i] = 0;
                     propLock[i] = false;
                 }
             }
-			state = NodeState.Inactive;
+            state = NodeState.Inactive;
 
             parmRect = new Dictionary<string, NodeParm>();
             parmRect.Clear();
             for (int i = 0; i < props.Length; i++)
             {
                 // 引用变量赋值.
-                if(-1 != propStates[i])
+                if (-1 != propStates[i])
                 {
                     var v = props[i].PropertyType;
                     var vlst = _overlord.GetVariableListByType(v);
-                    if(vlst.Count > propStates[i])
+                    if (vlst.Count > propStates[i])
                     {
                         props[i].SetValue(this, ((GKToyVariable)vlst[propStates[i]]), null);
                     }
@@ -109,6 +118,92 @@ namespace GKToy
                 // 参数节点区域初始化.
                 parmRect.Add(props[i].Name, np);
             }
+        }
+
+        /// <summary>
+        /// 检查还原字符串中节点参数和现有节点属性是否有出入
+        /// </summary>
+        /// <param name="backStr">还原字符串</param>
+        /// <returns>是否有出入</returns>
+        virtual public bool Restore(string backStr)
+        {
+            // 统一属性相关的变量.
+            Type t = GetType();
+            props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            bool isEdit = false;
+            if (props.Length == propNames.Length)
+            {
+                for (int i = 0; i < props.Length; i++)
+                {
+                    if (propNames[i] != props[i].Name)
+                        isEdit = true;
+                }
+            }
+            else
+            {
+                isEdit = true;
+            }
+            if (isEdit)
+            {
+                string[] tmpPropNames = new string[props.Length];
+                int[] tmpPropStates = new int[props.Length];
+                int[] tmpIoStates = new int[props.Length];
+                bool[] tmpPropLock = new bool[props.Length];
+                for (int i = 0; i < props.Length; i++)
+                {
+                    if (propNames.Length > i && propNames[i] == props[i].Name)
+                    {
+                        tmpPropStates[i] = propStates[i];
+                        tmpIoStates[i] = ioStates[i];
+                        tmpPropLock[i] = propLock[i];
+                    }
+                    else
+                    {
+                        int index = Array.IndexOf(propNames, props[i].Name);
+                        if (0 <= index)
+                        {
+                            tmpPropStates[i] = propStates[index];
+                            tmpIoStates[i] = ioStates[index];
+                            tmpPropLock[i] = propLock[index];
+                        }
+                        else
+                        {
+                            tmpPropStates[i] = -1;
+                            tmpIoStates[i] = 0;
+                            tmpPropLock[i] = false;
+                        }
+                    }
+                    tmpPropNames[i] = props[i].Name;
+                }
+                propNames = tmpPropNames;
+                propStates = tmpPropStates;
+                ioStates = tmpIoStates;
+                propLock = tmpPropLock;
+            }
+            // 初始化.
+            state = NodeState.Inactive;
+
+            parmRect = new Dictionary<string, NodeParm>();
+            parmRect.Clear();
+            for (int i = 0; i < props.Length; i++)
+            {
+                // 引用变量赋值.
+                if (-1 != propStates[i])
+                {
+                    var v = props[i].PropertyType;
+                    var vlst = _overlord.GetVariableListByType(v);
+                    if (vlst.Count > propStates[i])
+                    {
+                        props[i].SetValue(this, ((GKToyVariable)vlst[propStates[i]]), null);
+                    }
+                }
+                NodeParm np = new NodeParm();
+                np.propretyInfo = props[i];
+                np.rect = Rect.zero;
+                // 参数节点区域初始化.
+                parmRect.Add(props[i].Name, np);
+            }
+            return isEdit;
         }
 
         // 通过ID查找链接.
@@ -417,7 +512,6 @@ namespace GKToy
         [XmlIgnore]
         public int previous;
         public int next;
-        public int nextType;
         /// <summary>
         /// 链接目标可为节点也可为节点参数, 如果key不为空为该节点参数.
         /// </summary>

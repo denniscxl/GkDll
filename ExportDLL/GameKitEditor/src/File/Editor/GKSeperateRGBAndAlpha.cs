@@ -15,7 +15,7 @@ namespace GKFile
         static string defaultWhiteTexPath_relative = string.Format("Assets/SeparateTextureFolder/Default/Default_Alpha.png");
         static Texture2D defaultWhiteTex = null;
 
-        [MenuItem("GK/Seperate ETC1 RGB and Alpha Channel")]
+        //[MenuItem("GK/Seperate ETC1 RGB and Alpha Channel")]
         static void _SeperateAllTexturesRGBandAlphaChannel()
         {
             Debug.Log("Start Seperate ETC1.");

@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{365EA733-B525-47DC-B60C-3E1341D1B7CB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GKToyTaskEditor</RootNamespace>
+    <AssemblyName>GKToyTaskEditor</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GameKit, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\GameKit.dll</HintPath>
+    </Reference>
+    <Reference Include="GameKitEditor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\GameKitEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="GKToy, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\GKToy.dll</HintPath>
+    </Reference>
+    <Reference Include="GKToyTaskDialogue, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\GKToyTaskDialogue.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Data\Editor\GKToyTaskAssetPostprocessor.cs" />
+    <Compile Include="src\Data\Editor\GKToyTaskDataImport.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerChapterInfo.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerSubHuntingCom.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerSubCollectCom.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerSubInteractCom.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerSubTaskCom.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerTaskCom.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerTaskDataExporter.cs" />
+    <Compile Include="src\Editor\Task\GKToyMakerTaskNodeComSelector.cs" />
+    <Compile Include="src\Editor\Task\GKToyTaskMaker.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTask.cs" />
+    <Compile Include="src\Nodes\Actions\Task\GKToyTask.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskCollect.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskDestination.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskInteract.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskDuel.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskHunting.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskProtection.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskRecycle.cs" />
+    <Compile Include="src\Nodes\Actions\Decorations\GKToySubTaskSubTree.cs" />
+    <Compile Include="src\Setting\ToyMakerTaskSetting.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"$(ProjectDir)\pdb2mdb" "$(TargetPath)"
+copy "$(TargetPath)" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"
+copy "$(TargetDir)\$(TargetFileName).mdb" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

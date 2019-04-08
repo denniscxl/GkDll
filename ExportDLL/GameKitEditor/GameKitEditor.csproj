@@ -62,6 +62,7 @@
     <Compile Include="src\File\Editor\GKFileEditor.cs" />
     <Compile Include="src\File\Editor\GKSeperateRGBAndAlpha.cs" />
     <Compile Include="src\UI\Editor\GKUIEditor.cs" />
+    <Compile Include="src\UI\Editor\GKUIModalWindow.cs" />
     <Compile Include="src\UI\Editor\GKUIPanelWindow.cs" />
   </ItemGroup>
   <ItemGroup />

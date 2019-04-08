@@ -189,7 +189,7 @@ namespace GKBase
             }
         }
 
-        [MenuItem("GK/Create Asset File for selected ScriptableObject Script %#d")]
+        //[MenuItem("GK/Create Asset File for selected ScriptableObject Script %#d")]
         static void MenuItem_CreateStaticAssetFile()
         {
             foreach (var o in Selection.objects)
@@ -311,7 +311,7 @@ namespace GKBase
             }
         }
 
-        [MenuItem("GK/Disconnect Prefab for Selected Scene Objects")]
+        //[MenuItem("GK/Disconnect Prefab for Selected Scene Objects")]
         static void MenuItem_DisconnectPrefab()
         {
             foreach (var o in Selection.gameObjects)
@@ -320,7 +320,7 @@ namespace GKBase
             }
         }
 
-        [MenuItem("Assets/GK/Get GUID")]
+        //[MenuItem("Assets/GK/Get GUID")]
         static void MenuItem_GetGUID()
         {
             var list = GetAssetSelectionFilePath(true, null);
@@ -332,7 +332,7 @@ namespace GKBase
             Debug.Log(o);
         }
 
-        [MenuItem("Assets/GK/Get File Full Path")]
+        //[MenuItem("Assets/GK/Get File Full Path")]
         static void MenuItem_GetAsset_FileFullPath()
         {
             var list = GetAssetSelectionFilePath(true, null);
@@ -344,7 +344,7 @@ namespace GKBase
             Debug.Log(o);
         }
 
-        [MenuItem("GK/File Tools/Delete Empty Folders")]
+       // [MenuItem("GK/File Tools/Delete Empty Folders")]
         static void MenuItem_DeleteEmptyFolders()
         {
             var list = DeleteEmptyFolders("Assets");
@@ -352,7 +352,7 @@ namespace GKBase
         }
 
         //[MenuItem("GK/Copy Full Path %c")]
-        [MenuItem("GK/Copy Full Path")]
+        //[MenuItem("GK/Copy Full Path")]
         static public void MenuItem_CopyFullPath()
         {
             var files = GetAssetSelectionFilePath(false, null);
@@ -604,7 +604,7 @@ namespace GKBase
             }
         }
 
-        [MenuItem("GK/UI/UI Texture To Prefab")]
+        //[MenuItem("GK/UI/UI Texture To Prefab")]
         static void _MakeAtlas()
         {
             //Debug.Log(string.Format("UI Texture To Prefab"));

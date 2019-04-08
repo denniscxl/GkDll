@@ -12,3 +12,10 @@ D:\Projects\Git\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.cspr
 D:\Projects\Git\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.csproj.CopyComplete
 D:\Projects\Git\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.dll
 D:\Projects\Git\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.pdb
+D:\Projects\GKDllExport\ExportDLL\Bin\GameKitEditor.dll
+D:\Projects\GKDllExport\ExportDLL\Bin\GameKitEditor.pdb
+D:\Projects\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.csprojAssemblyReference.cache
+D:\Projects\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.csproj.CoreCompileInputs.cache
+D:\Projects\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.csproj.CopyComplete
+D:\Projects\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.dll
+D:\Projects\GKDllExport\ExportDLL\GameKitEditor\obj\Debug\GameKitEditor.pdb

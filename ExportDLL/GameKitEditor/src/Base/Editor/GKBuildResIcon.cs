@@ -16,7 +16,7 @@ public class GKBuildResIcon : EditorWindow
 
     public delegate void CallBack();
 
-    [MenuItem("GK/Built-in styles and icons")]
+    //[MenuItem("GK/Built-in styles and icons")]
     public static void ShowWindow()
     {
         GKBuildResIcon window = (GKBuildResIcon)EditorWindow.GetWindow<GKBuildResIcon>();

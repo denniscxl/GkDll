@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -68,42 +69,20 @@
     <Compile Include="src\Core\GKToyBaseOverlord.cs" />
     <Compile Include="src\Core\GKToyData.cs" />
     <Compile Include="src\Core\GKToyExternalData.cs" />
-    <Compile Include="src\Data\GKToyActionTypeData.cs" />
     <Compile Include="src\Data\Editor\GKToyAssetPostprocessor.cs" />
-    <Compile Include="src\Data\GKToyCameraTypeData.cs" />
-    <Compile Include="src\Data\GKToyConditionOutputTypeData.cs" />
-    <Compile Include="src\Data\GKToyConditionTypeData.cs" />
     <Compile Include="src\Data\Editor\GKToyDataImport.cs" />
     <Compile Include="src\Data\GKToyLocalizationData.cs" />
-    <Compile Include="src\Data\GKToySoundTypeData.cs" />
     <Compile Include="src\Editor\GKToyMaker.cs" />
-    <Compile Include="src\Editor\GKToyMakerDialogueActionCom.cs" />
-    <Compile Include="src\Editor\GKToyMakerDialogueCom.cs" />
-    <Compile Include="src\Editor\GKToyMakerDialogueConditionCom.cs" />
-    <Compile Include="src\Editor\GKToyMakerDialogueExitCom.cs" />
+    <Compile Include="src\Editor\GKToyMakerDataExporter.cs" />
+    <Compile Include="src\Editor\GKToyMakerNodeComSelector.cs" />
     <Compile Include="src\Editor\GKToyMakerExport.cs" />
     <Compile Include="src\Editor\GKToyMakerShortcuts.cs" />
-    <Compile Include="src\Editor\GKToyMakerTaskCom.cs" />
     <Compile Include="src\Editor\GKToyMakerTextInput.cs" />
     <Compile Include="src\FSM\GKNodeStateMachine.cs" />
     <Compile Include="src\FSM\GKStateListMachineBase.cs" />
     <Compile Include="src\Nodes\Actions\Base\GKToyClearState.cs" />
     <Compile Include="src\Nodes\Actions\Base\GKToyEnd.cs" />
     <Compile Include="src\Nodes\Actions\Base\GKToyStart.cs" />
-    <Compile Include="src\Nodes\Actions\Dialogue\GKToyDialogue.cs" />
-    <Compile Include="src\Nodes\Actions\Dialogue\GKToyDialogueAction.cs" />
-    <Compile Include="src\Nodes\Actions\Dialogue\GKToyDialogueBranch.cs" />
-    <Compile Include="src\Nodes\Actions\Dialogue\GKToyDialogueCondition.cs" />
-    <Compile Include="src\Nodes\Actions\Dialogue\GKToyDialogueExit.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTask.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskCollect.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskDestination.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskDialogue.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskDuel.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskHunting.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskProtection.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskRecycle.cs" />
-    <Compile Include="src\Nodes\Actions\Task\GKToyTaskSubTree.cs" />
     <Compile Include="src\Nodes\Core\GKToyExportAttrDef.cs" />
     <Compile Include="src\Nodes\Core\GKToyGroupLink.cs" />
     <Compile Include="src\Nodes\Core\GKToyNode.cs" />

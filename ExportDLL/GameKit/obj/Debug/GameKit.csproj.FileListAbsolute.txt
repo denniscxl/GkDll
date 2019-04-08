@@ -14,3 +14,11 @@ D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CopyCompl
 D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.dll
 D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.pdb
 D:\Projects\Git\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csprojAssemblyReference.cache
+D:\Projects\GKDllExport\ExportDLL\Bin\src\Data\JsonNet\Newtonsoft.Json.dll.mdb
+D:\Projects\GKDllExport\ExportDLL\Bin\GameKit.dll
+D:\Projects\GKDllExport\ExportDLL\Bin\GameKit.pdb
+D:\Projects\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CoreCompileInputs.cache
+D:\Projects\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CopyComplete
+D:\Projects\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.dll
+D:\Projects\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.pdb
+D:\Projects\GKDllExport\ExportDLL\GameKit\obj\Debug\GameKit.csprojAssemblyReference.cache

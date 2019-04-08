@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Reflection;
 
 namespace GKToy
 {
@@ -15,6 +16,8 @@ namespace GKToy
         public Dictionary<string, NodeIconAttribute> iconAttributeDict;
         // 在节点树中隐藏的节点列表.
         public List<string> hideNodes;
+        // 记录类所在的Assembly.
+        public Dictionary<string, Assembly> typeAssemblyDict;
         #endregion
 
         #region PrivateField
@@ -38,28 +41,36 @@ namespace GKToy
             desAttributeDict = new Dictionary<string, Dictionary<string, NodeDescriptionAttribute>>();
             iconAttributeDict = new Dictionary<string, NodeIconAttribute>();
             hideNodes = new List<string>();
-            List<Type> subTypes = parent.Assembly.GetTypes().Where(type => type.IsSubclassOf(parent)).ToList();
+            typeAssemblyDict = new Dictionary<string, Assembly>();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            List<Type> subTypes = new List<Type>();
+            foreach (Assembly assem in assemblies)
+            {
+                subTypes.AddRange(assem.GetTypes().Where(type => type.IsSubclassOf(parent)));
+            }
             foreach (Type type in subTypes)
             {
+                //string.Format("{0}.{1}", type.Assembly.GetName().Name, type.Name)
+                typeAssemblyDict.Add(string.Format("{0}.{1}", type.Namespace, type.Name), type.Assembly);
                 var attributes = type.GetCustomAttributes(typeof(NodeTypeTreeAttribute), false);
                 if (attributes.Length > 0)
                 {
-                    typeAttributeDict.Add("GKToy." + type.Name, ((NodeTypeTreeAttribute[])attributes).ToDictionary(x => x.lang));
+                    typeAttributeDict.Add(string.Format("{0}.{1}", type.Namespace, type.Name), ((NodeTypeTreeAttribute[])attributes).ToDictionary(x => x.lang));
                 }
                 var attributes2 = type.GetCustomAttributes(typeof(NodeDescriptionAttribute), false);
                 if (attributes2.Length > 0)
                 {
-                    desAttributeDict.Add("GKToy." + type.Name, ((NodeDescriptionAttribute[])attributes2).ToDictionary(x => x.lang));
+                    desAttributeDict.Add(string.Format("{0}.{1}", type.Namespace, type.Name), ((NodeDescriptionAttribute[])attributes2).ToDictionary(x => x.lang));
                 }
                 var attributes3 = type.GetCustomAttributes(typeof(NodeIconAttribute), false);
                 if (attributes3.Length > 0)
                 {
-                    iconAttributeDict.Add("GKToy." + type.Name, (NodeIconAttribute)attributes3[0]);
+                    iconAttributeDict.Add(string.Format("{0}.{1}", type.Namespace, type.Name), (NodeIconAttribute)attributes3[0]);
                 }
                 var attributes4 = type.GetCustomAttributes(typeof(InvisibleNodeAttribute), false);
                 if (attributes4.Length > 0)
                 {
-                    hideNodes.Add("GKToy." + type.Name);
+                    hideNodes.Add(string.Format("{0}.{1}", type.Namespace, type.Name));
                 }
             }
         }

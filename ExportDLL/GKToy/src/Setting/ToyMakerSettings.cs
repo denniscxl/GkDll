@@ -90,6 +90,10 @@ public class ToyMakerSettings : ScriptableObject
 
         // 默认宿主存储路径.
         public string _defaultOverlordPath = "";
-	}
+        // 默认客户端数据导出路径.
+        public string _defaultClientPath = "";
+        // 默认服务器数据导出路径.
+        public string _defaultServerPath = "";
+    }
     public  ToyMakerBase toyMakerBase = new ToyMakerBase();
 }

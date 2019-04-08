@@ -94,21 +94,32 @@ namespace GKToy
             }
             try
             {
+                bool hasDataChanged = false;
                 OverlordBackData backData = JsonConvert.DeserializeObject<OverlordBackData>(File.ReadAllText(filePath));
                 GKToyExternalData internData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(backData.internalData.resourcePath);
                 internData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(backData.internalData.backupPath).Replace("\t\n", "\\n"));
-                internData.data.Init(this);
+                if (internData.data.RestoreData(this) && !hasDataChanged)
+                {
+                    hasDataChanged = true;
+                }
                 List<GKToyExternalData> externDatas = new List<GKToyExternalData>();
                 foreach (var external in backData.externalDatas)
                 {
                     GKToyExternalData externData = AssetDatabase.LoadAssetAtPath<GKToyExternalData>(external.Value.resourcePath);
                     externData.data = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(external.Value.backupPath).Replace("\t\n", "\\n"));
-                    externData.data.Init(this);
+                    if(externData.data.RestoreData(this) && !hasDataChanged)
+                    {
+                        hasDataChanged = true;
+                    }
                     externDatas.Add(externData);
                 }
                 isPlaying = backData.isPlaying;
                 internalData = internData;
                 externalDatas = externDatas;
+                if (hasDataChanged)
+                {
+                    Debug.Log("Unmatched backup data upgraded, please re-edit changed properties");
+                }
                 return true;
             }
             catch
@@ -129,7 +140,7 @@ namespace GKToy
                     destPath = EditorUtility.OpenFolderPanel(GKToyMaker._GetLocalization("Save path"), internalData.name, GKToyMaker._GetLocalization("Select save path."));
                 } while (!Directory.Exists(destPath));
                 destPath = destPath.Substring(destPath.IndexOf("Assets/"));
-                Settings.toyMakerBase._defaultOverlordPath = destPath;
+                toyMakerBase._defaultOverlordPath = destPath;
             }
             string prefabPath = string.Format("{0}/{1}.prefab", destPath, internalData.name);
             GameObject prefab;
@@ -144,12 +155,6 @@ namespace GKToy
             }
             Selection.activeGameObject = prefab;
             DestroyImmediate(gameObject);
-        }
-
-        static public void MergeBackData(string file)
-        {
-            GKToyData tmpData = JsonConvert.DeserializeObject<GKToyData>(File.ReadAllText(file).Replace("\t\n", "\\n"));
-            //tmpData.Init();
         }
 
         #region ExternalData

@@ -11,6 +11,26 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameKitEditor", "GameKitEdi
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKToy", "GKToy\GKToy.csproj", "{D20C2987-1940-49AF-AF5F-BC6A9BC6730D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4A6D69C0-74E7-43B4-8C72-15D78B2022F2} = {4A6D69C0-74E7-43B4-8C72-15D78B2022F2}
+		{C691E8C7-AF1B-4043-AC63-1EF05F83A6CB} = {C691E8C7-AF1B-4043-AC63-1EF05F83A6CB}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKToyDialogue", "GKToyDialogue\GKToyDialogue.csproj", "{A6AE189C-7AC6-46B9-9400-8BD7092CDD8D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D} = {D20C2987-1940-49AF-AF5F-BC6A9BC6730D}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKToyTaskEditor", "GKToyTaskEditor\GKToyTaskEditor.csproj", "{365EA733-B525-47DC-B60C-3E1341D1B7CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D} = {D20C2987-1940-49AF-AF5F-BC6A9BC6730D}
+		{7A6293AE-6E68-4710-9DF6-C3017C740CAF} = {7A6293AE-6E68-4710-9DF6-C3017C740CAF}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKToyTaskDialogue", "GKToyTaskDialogue\GKToyTaskDialogue.csproj", "{7A6293AE-6E68-4710-9DF6-C3017C740CAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D} = {D20C2987-1940-49AF-AF5F-BC6A9BC6730D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +50,18 @@ Global
 		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D20C2987-1940-49AF-AF5F-BC6A9BC6730D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6AE189C-7AC6-46B9-9400-8BD7092CDD8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6AE189C-7AC6-46B9-9400-8BD7092CDD8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6AE189C-7AC6-46B9-9400-8BD7092CDD8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6AE189C-7AC6-46B9-9400-8BD7092CDD8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{365EA733-B525-47DC-B60C-3E1341D1B7CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{365EA733-B525-47DC-B60C-3E1341D1B7CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{365EA733-B525-47DC-B60C-3E1341D1B7CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{365EA733-B525-47DC-B60C-3E1341D1B7CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A6293AE-6E68-4710-9DF6-C3017C740CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A6293AE-6E68-4710-9DF6-C3017C740CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A6293AE-6E68-4710-9DF6-C3017C740CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A6293AE-6E68-4710-9DF6-C3017C740CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

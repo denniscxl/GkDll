@@ -10,6 +10,7 @@ public class TreeNode {
     #region PublicField
     public string name;
     public string key;
+    public string space;
     public TreeNodeType nodeType = TreeNodeType.Item;
     public List<TreeNode> children = null;
     public bool isOpen = false;
@@ -103,6 +104,7 @@ public class TreeNode {
             if (data.ContainsKey(fullPath))
             {
                 node.key = data[fullPath];
+                node.space = node.key.Split('.')[0];
             }
             node.nodeType = TreeNodeType.Item;
             data.Remove(path);

@@ -358,14 +358,9 @@ namespace GKBase
             }
         }
 
-        static public GKCSVParser OpenFile(string filename, string columnStartMark)
+        static public GKCSVParser OpenFile(string filename, string columnStartMark, string filenameForDebug = "")
         {
-            return OpenString(System.IO.File.ReadAllText(filename, System.Text.Encoding.UTF8), columnStartMark, filename);
-        }
-
-        static public GKCSVParser OpenString(string csv, string columnStartMark, string filenameForDebug = "")
-        {
-            var p = new GKCSVParser(csv);
+            var p = new GKCSVParser(filename);
             p._filename = filenameForDebug;
 
             if (!string.IsNullOrEmpty(columnStartMark))
@@ -404,19 +399,12 @@ namespace GKBase
             return p;
         }
 
-        GKCSVParser(string csv)
+        GKCSVParser(string fileName)
         {
-            _sourceCsv = csv;
-
-            if (_sourceCsv.Length >= 3)
-            { // remove UTF-8 BOM
-                if (_sourceCsv[0] == (char)0xEF
-                    && _sourceCsv[1] == (char)0xBB
-                    && _sourceCsv[2] == (char)0xBF)
-                {
-                    _readIndex = 3;
-                }
-            }
+             _sourceCsv = System.IO.File.ReadAllText(fileName, GK.GetEncoding(fileName, out _readIndex));
+            if (_sourceCsv.Contains("\r\n"))
+                _sourceCsv = _sourceCsv.Replace("\r\n", "\n");
+            _sourceCsv = _sourceCsv.TrimEnd('\n');
         }
 
         public bool IsRowStartWith(string s)

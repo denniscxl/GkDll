@@ -23,6 +23,9 @@ namespace GKToy
         public bool destoryWhenCompleted = true;
         public int nodeGuid = 0;
         public int linkGuid = 0;
+        public int minLiteralId = 0;
+        public int maxLiteralId = 0;
+        public int curLiteralId = 0;
         // Node链表.
         public List<string> nodeData = new List<string>();
         public List<string> nodeTypeData = new List<string>();
@@ -92,15 +95,18 @@ namespace GKToy
                             //((GKToyVariable)obj).PropertyDataOwner = tPropertyDataOwner;
                         }
                     }
-                    if (_overlord.gameObject.scene.name == null)
+                    if (null != _overlord)
                     {
-                        // prefab
-                        GKEditor.SetPrefabDirty(_overlord.gameObject);
-                    }
-                    else
-                    {
-                        // scene gameobject
-                        GKEditor.SetActiveSceneDirty();
+                        if (_overlord.gameObject.scene.name == null)
+                        {
+                            // prefab
+                            GKEditor.SetPrefabDirty(_overlord.gameObject);
+                        }
+                        else
+                        {
+                            // scene gameobject
+                            GKEditor.SetActiveSceneDirty();
+                        }
                     }
                 }
             }
@@ -160,7 +166,7 @@ namespace GKToy
                     }
                     else
                         isChanged = true;
-                    if (isChanged)
+                    if (isChanged && null != _overlord)
                     {
                         if (_overlord.gameObject.scene.name == null)
                         {
@@ -185,7 +191,7 @@ namespace GKToy
             bool isEditor = GKEditor.isUnityEditor();
             foreach (var d in nodeData)
             {
-                Type t = Type.GetType(nodeTypeData[i]);
+                Type t = GKToyMakerTypeManager.Instance().typeAssemblyDict[nodeTypeData[i]].GetType(nodeTypeData[i]);
                 var n = (GKToyNode)JsonUtility.FromJson(d, t);
                 n.Init(_overlord);
                 if (isEditor && typeof(GKToyNodeGroup) == t)
@@ -194,7 +200,34 @@ namespace GKToy
                 i++;
             }
         }
-
+        /// <summary>
+        /// 还原数据
+        /// </summary>
+        /// <param name="overlord"></param>
+        /// <returns>数据结构是否改变</returns>
+        public bool RestoreData(GKToyBaseOverlord overlord)
+        {
+            _overlord = overlord;
+            LoadVariable(overlord, this);
+            nodeLst.Clear();
+            int i = 0;
+            bool isEditor = GKEditor.isUnityEditor();
+            bool dataChanged = false;
+            foreach (var d in nodeData)
+            {
+                Type t = GKToyMakerTypeManager.Instance().typeAssemblyDict[nodeTypeData[i]].GetType(nodeTypeData[i]);
+                var n = (GKToyNode)JsonUtility.FromJson(d, t);
+                if (n.Restore(d) && !dataChanged)
+                {
+                    dataChanged = true;
+                }
+                if (isEditor && typeof(GKToyNodeGroup) == t)
+                    ((GKToyNodeGroup)n).data = this;
+                nodeLst.Add(n.id, n);
+                i++;
+            }
+            return dataChanged;
+        }
         #endregion
 
         #region PrivateMethod

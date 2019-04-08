@@ -17,7 +17,7 @@ namespace GKUI
         static bool _panelFoldout = true;
         static bool _bShowDemoAssets = true;
 
-        [MenuItem("GK/UI/Convert BoxCollider 2D to 3D")]
+        //[MenuItem("GK/UI/Convert BoxCollider 2D to 3D")]
         static public void MenuItem_ConvertBoxCollider2Dto3D()
         {
             foreach (var o in Selection.gameObjects)
@@ -26,7 +26,7 @@ namespace GKUI
             }
         }
 
-        [MenuItem("GK/UI/Panel Window", false, GKEditorConfiger.MenuItemPriorityA)]
+        //[MenuItem("GK/UI/Panel Window", false, GKEditorConfiger.MenuItemPriorityA)]
         static public void MenuItem_Window()
         {
             var w = EditorWindow.GetWindow<GKUIPanelWindow>("UI Panel Window Panels");

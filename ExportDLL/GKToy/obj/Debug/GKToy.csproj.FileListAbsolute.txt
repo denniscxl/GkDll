@@ -12,8 +12,8 @@ D:\Projects\Git\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.dll
 D:\Projects\Git\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.pdb
 D:\Projects\GKDllExport\ExportDLL\Bin\GKToy.dll
 D:\Projects\GKDllExport\ExportDLL\Bin\GKToy.pdb
+D:\Projects\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.csprojAssemblyReference.cache
 D:\Projects\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.csproj.CoreCompileInputs.cache
 D:\Projects\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.csproj.CopyComplete
 D:\Projects\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.dll
 D:\Projects\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.pdb
-D:\Projects\Git\GKDllExport\ExportDLL\GKToy\obj\Debug\GKToy.csprojAssemblyReference.cache

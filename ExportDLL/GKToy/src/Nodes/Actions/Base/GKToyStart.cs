@@ -12,7 +12,10 @@ namespace GKToy
 	public class GKToyStart : GKToyNode
     {
 
-        public GKToyStart(int _id) : base(_id) { }
+        public GKToyStart(int _id) : base(_id)
+        {
+            type = 0;
+        }
 
         override public void Init(GKToyBaseOverlord ovelord)
         {
