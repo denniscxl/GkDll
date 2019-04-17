@@ -61,6 +61,7 @@
     <Compile Include="src\Encryption\Editor\GKCodeObfuscation.cs" />
     <Compile Include="src\File\Editor\GKFileEditor.cs" />
     <Compile Include="src\File\Editor\GKSeperateRGBAndAlpha.cs" />
+    <Compile Include="src\Platform\GKEditorCommand.cs" />
     <Compile Include="src\UI\Editor\GKUIEditor.cs" />
     <Compile Include="src\UI\Editor\GKUIModalWindow.cs" />
     <Compile Include="src\UI\Editor\GKUIPanelWindow.cs" />
@@ -69,7 +70,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)\pdb2mdb" "$(TargetPath)"
-copy "$(TargetPath)" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"
-copy "$(TargetDir)\$(TargetFileName).mdb" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"</PostBuildEvent>
+copy "$(TargetPath)" "$(SolutionDir)..\..\GKToy\Assets\Utilities\Plugins\"
+copy "$(TargetDir)\$(TargetFileName).mdb" "$(SolutionDir)..\..\GKToy\Assets\Utilities\Plugins\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -100,7 +100,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)\pdb2mdb" "$(TargetPath)"
-copy "$(TargetPath)" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"
-copy "$(TargetDir)\$(TargetFileName).mdb" "$(SolutionDir)..\..\ToyMaker\Assets\Utilities\Plugins\"</PostBuildEvent>
+copy "$(TargetPath)" "$(SolutionDir)..\..\GKToy\Assets\Utilities\Plugins\"
+copy "$(TargetDir)\$(TargetFileName).mdb" "$(SolutionDir)..\..\GKToy\Assets\Utilities\Plugins\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
