@@ -10,7 +10,6 @@ namespace GKController
         #endregion
 
         #region PublicField
-        public GameObject overlord;
         #endregion
 
         #region PrivateField
@@ -24,8 +23,6 @@ namespace GKController
 
         public virtual void InitRoot()
         {
-            overlord = new GameObject("Overlord");
-            GK.SetParent(overlord, gameObject, false);
         }
         #endregion
 

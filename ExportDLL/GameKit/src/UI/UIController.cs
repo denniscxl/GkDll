@@ -13,7 +13,12 @@ namespace GKUI
             {
                 if (null == _instance)
                 {
-                    _instance = GK.GetOrAddComponent<UIController>(GK.TryLoadGameObject("Prefabs/Manager/UIController"));
+                    var go = GameObject.Find("UIController");
+
+                    if(null == go)
+                        _instance = GK.GetOrAddComponent<UIController>(GK.TryLoadGameObject("Prefabs/Manager/UIController"));
+                    else
+                        _instance = GK.GetOrAddComponent<UIController>(go);
                 }
                 return _instance;
             }
@@ -99,10 +104,10 @@ namespace GKUI
 
         static public T LoadDemoPanel<T>() where T : MonoBehaviour
         {
-            return LoadPanel<T>("_Demo/UI/Panels/");
+            return LoadPanel<T>("_Demo/Panels/");
         }
 
-        static public T LoadPanel<T>(string p = "UI/Panels/") where T : MonoBehaviour
+        static public T LoadPanel<T>(string p = "Panels/") where T : MonoBehaviour
         {
             var type = typeof(T);
 
@@ -135,7 +140,7 @@ namespace GKUI
 
         static public AnimationClip LoadAnimation(string clip)
         {
-            string path = "UI/Animations/" + clip;
+            string path = "Animations/" + clip;
 
             AnimationClip obj = null;
 

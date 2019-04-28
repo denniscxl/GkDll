@@ -10,7 +10,7 @@ namespace GKEncryption
     {
 
         #region PublicMethod
-        //[MenuItem("GK/Obfuscation/Scoure code obfuscation")]
+        [MenuItem("GK/Obfuscation/Scoure code obfuscation")]
         static void _MenuItemScoureCodeObfuscation()
         {
             if (EditorUtility.DisplayDialog("Obfuscation", "Do you want Scoure code obfuscation?", "Of course", "No, Thanks"))

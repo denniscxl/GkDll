@@ -15,9 +15,9 @@ namespace GKUI
         static bool _settingAssetFoldout = true;
         static bool _skinsFoldout = true;
         static bool _panelFoldout = true;
-        static bool _bShowDemoAssets = true;
+        static bool _bShowDemoAssets = false;
 
-        //[MenuItem("GK/UI/Convert BoxCollider 2D to 3D")]
+        [MenuItem("GK/UI/Convert BoxCollider 2D to 3D")]
         static public void MenuItem_ConvertBoxCollider2Dto3D()
         {
             foreach (var o in Selection.gameObjects)
@@ -26,7 +26,7 @@ namespace GKUI
             }
         }
 
-        //[MenuItem("GK/UI/Panel Window", false, GKEditorConfiger.MenuItemPriorityA)]
+        [MenuItem("GK/UI/Panel Window", false, GKEditorConfiger.MenuItemPriorityA)]
         static public void MenuItem_Window()
         {
             var w = EditorWindow.GetWindow<GKUIPanelWindow>("UI Panel Window Panels");
@@ -153,12 +153,12 @@ namespace GKUI
         void RefreshList()
         {
 
-            string rootPath = /*_bShowDemoAssets ? "Assets/Resources/_Demo/" :*/ "Assets/Utilities/Examples/Resources/";
+            string rootPath = _bShowDemoAssets ? "Assets/UI/Resources/_Demo/" : "Assets/UI/Resources/";
             {
                 _settingAssetList.Clear();
-                if(System.IO.Directory.Exists(rootPath + "UI/Settings"))
+                if(System.IO.Directory.Exists(rootPath + "Settings"))
                 {
-                    var list = System.IO.Directory.GetFiles(rootPath + "UI/Settings", "*.asset");
+                    var list = System.IO.Directory.GetFiles(rootPath + "Settings", "*.asset");
                     foreach (var p in list)
                     {
                         var e = new Entry(p);
@@ -167,9 +167,17 @@ namespace GKUI
                 }
             }
 
+            string ralPath = rootPath + "Panels";
+            if (!System.IO.Directory.Exists(ralPath))
+            {
+                Debug.Log(rootPath);
+                GKFile.GKFileUtil.CreateDirectory(ralPath);
+            }
+                
+
             {
                 _panelList.Clear();
-                var list = System.IO.Directory.GetFiles(rootPath + "UI/Panels", "*.prefab");
+                var list = System.IO.Directory.GetFiles(ralPath, "*.prefab");
                 foreach (var p in list)
                 {
                     var e = new Entry(p);
