@@ -2,6 +2,8 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using GKBase;
+using System.Runtime.InteropServices;
+using System;
 
 namespace GKFile
 {
@@ -289,5 +291,98 @@ namespace GKFile
             string t = path.Replace(string.Format("{0}/", folders[folders.Length - idx]), "");
             return t;
         }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class OpenDialogFile
+        {
+            public int structSize = 0;
+            public IntPtr dlgOwner = IntPtr.Zero;
+            public IntPtr instance = IntPtr.Zero;
+            public String filter = null;
+            public String customFilter = null;
+            public int maxCustFilter = 0;
+            public int filterIndex = 0;
+            public String file = null;
+            public int maxFile = 0;
+            public String fileTitle = null;
+            public int maxFileTitle = 0;
+            public String initialDir = null;
+            public String title = null;
+            public int flags = 0;
+            public short fileOffset = 0;
+            public short fileExtension = 0;
+            public String defExt = null;
+            public IntPtr custData = IntPtr.Zero;
+            public IntPtr hook = IntPtr.Zero;
+            public String templateName = null;
+            public IntPtr reservedPtr = IntPtr.Zero;
+            public int reservedInt = 0;
+            public int flagsEx = 0;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class OpenDialogDir
+        {
+            public IntPtr hwndOwner = IntPtr.Zero;
+            public IntPtr pidlRoot = IntPtr.Zero;
+            public String pszDisplayName = null;
+            public String lpszTitle = null;
+            public UInt32 ulFlags = 0;
+            public IntPtr lpfn = IntPtr.Zero;
+            public IntPtr lParam = IntPtr.Zero;
+            public int iImage = 0;
+        }
+
+        public class DllOpenFileDialog
+        {
+            [DllImport("Comdlg32.dll", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Auto)]
+            public static extern bool GetOpenFileName([In, Out] OpenDialogFile ofn);
+
+            [DllImport("Comdlg32.dll", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Auto)]
+            public static extern bool GetSaveFileName([In, Out] OpenDialogFile ofn);
+
+            [DllImport("shell32.dll", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Auto)]
+            public static extern IntPtr SHBrowseForFolder([In, Out] OpenDialogDir ofn);
+
+            [DllImport("shell32.dll", SetLastError = true, ThrowOnUnmappableChar = true, CharSet = CharSet.Auto)]
+            public static extern bool SHGetPathFromIDList([In] IntPtr pidl, [In, Out] char[] fileName);
+        }
+
+        static public string GetDirPathByDialog(string title)
+        {
+            OpenDialogDir odd = new GKFileUtil.OpenDialogDir();
+            odd.pszDisplayName = new string(new char[1000]);
+            odd.lpszTitle = title;
+            //ofn2.ulFlags = BIF_NEWDIALOGSTYLE | BIF_EDITBOX;
+            IntPtr pidlPtr = DllOpenFileDialog.SHBrowseForFolder(odd);
+
+            char[] charArray = new char[1000];
+            for (int i = 0; i < 1000; i++)
+                charArray[i] = '\0';
+
+            DllOpenFileDialog.SHGetPathFromIDList(pidlPtr, charArray);
+            string fullDirPath = new String(charArray);
+
+            fullDirPath = fullDirPath.Substring(0, fullDirPath.IndexOf('\0'));
+
+            return fullDirPath;
+        }
+
+        static public string GetFilePathByDialog(string title, string defaultPath)
+        {
+            OpenDialogFile openFileName = new OpenDialogFile();
+            openFileName.structSize = Marshal.SizeOf(openFileName);
+            //openFileName.filter = "Excel文件(*.xlsx)\0*.xlsx";
+            openFileName.file = new string(new char[512]);
+            openFileName.maxFile = openFileName.file.Length;
+            openFileName.fileTitle = new string(new char[64]);
+            openFileName.maxFileTitle = openFileName.fileTitle.Length;
+            openFileName.initialDir = defaultPath;
+            openFileName.title = title;
+            openFileName.flags = 0x00080000 | 0x00001000 | 0x00000800 | 0x00000008;
+
+            DllOpenFileDialog.GetSaveFileName(openFileName);
+
+            return openFileName.file;
+}
     }
 }

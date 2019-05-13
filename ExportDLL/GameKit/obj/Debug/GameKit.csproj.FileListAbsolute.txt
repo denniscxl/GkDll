@@ -29,3 +29,4 @@ D:\Projects\Git\_GitHub\GkDll\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CoreCom
 D:\Projects\Git\_GitHub\GkDll\ExportDLL\GameKit\obj\Debug\GameKit.csproj.CopyComplete
 D:\Projects\Git\_GitHub\GkDll\ExportDLL\GameKit\obj\Debug\GameKit.dll
 D:\Projects\Git\_GitHub\GkDll\ExportDLL\GameKit\obj\Debug\GameKit.pdb
+D:\Projects\Git\_GitHub\GkDll\ExportDLL\GameKit\obj\Debug\GameKit.csprojAssemblyReference.cache

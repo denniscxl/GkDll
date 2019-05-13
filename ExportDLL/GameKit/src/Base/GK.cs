@@ -7,6 +7,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using System.Text;
+using System.Drawing.Imaging;
+using System.Drawing;
 
 namespace GKBase
 {
@@ -702,7 +704,7 @@ namespace GKBase
                     if (!array[i, j])
                     {
                         array[i, j] = true;
-                        if (Color.white != tex.GetPixel(j, i))
+                        if (UnityEngine.Color.white != tex.GetPixel(j, i))
                         {
                             v.x = j;
                             v.y = i;
@@ -722,8 +724,8 @@ namespace GKBase
         {
             for (int i = widthIdx; i < tex.width; i++)
             {
-                Color c = tex.GetPixel(i, heightIdx);
-                if (c == Color.white)
+                UnityEngine.Color c = tex.GetPixel(i, heightIdx);
+                if (c == UnityEngine.Color.white)
                 {
                     return i - widthIdx;
                 }
@@ -736,8 +738,8 @@ namespace GKBase
         {
             for (int i = heightIdx; i < tex.height; i++)
             {
-                Color c = tex.GetPixel(widthIdx, i);
-                if (c == Color.white)
+                UnityEngine.Color c = tex.GetPixel(widthIdx, i);
+                if (c == UnityEngine.Color.white)
                 {
                     return i - heightIdx;
                 }
@@ -835,7 +837,7 @@ namespace GKBase
             }
         }
 
-        static public void SetMatColor(List<Renderer> renders, Color color, GameObject gameObject, float rimPower = 0.5f)
+        static public void SetMatColor(List<Renderer> renders, UnityEngine.Color color, GameObject gameObject, float rimPower = 0.5f)
         {
             if (null != renders && !ReferenceEquals(gameObject, null) && gameObject.activeSelf)
             {
@@ -865,7 +867,7 @@ namespace GKBase
         const string TRANSPARENT = "TRANSPARENT";
         const string PROJECTION_ON = "PROJECTION_ON";
         const string ALPHAOFFSET = "_AlphaOffset";
-        static public void SetMatColor(Renderer render, Color color, float rimPower = 0.5f)
+        static public void SetMatColor(Renderer render, UnityEngine.Color color, float rimPower = 0.5f)
         {
             if (null != render)
             {
@@ -877,7 +879,7 @@ namespace GKBase
                         continue;
                     if (m.HasProperty(_rimColorID))
                     {
-                        Color c = m.GetColor(_rimColorID);
+                        UnityEngine.Color c = m.GetColor(_rimColorID);
                         if (c != color)
                         {
                             m.SetColor(_rimColorID, color);
@@ -1230,6 +1232,51 @@ namespace GKBase
                 throw new Exception("非预期的byte格式!");
             }
             return true;
+        }
+
+        /// <summary>
+        /// Gif转换图片. 由于System.Drawing.dll的部分功能只支持PC平台.
+        /// 故如果需要使用此函数需要删除Unity中精简版dll， 并放置全平台dll
+        /// 于Plugins中.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        static public List<Texture2D> GifToTextureByCS(Image image)
+        {
+            List<Texture2D> texture2D = null;
+            if (null != image)
+            {
+                texture2D = new List<Texture2D>();
+                //Debug.LogError(image.FrameDimensionsList.Length);
+                //image.FrameDimensionsList.Length = 1;
+                //根据指定的唯一标识创建一个提供获取图形框架维度信息的实例;
+                FrameDimension frameDimension = new FrameDimension(image.FrameDimensionsList[0]);
+                //获取指定维度的帧数;
+                int framCount = image.GetFrameCount(frameDimension);
+                for (int i = 0; i < framCount; i++)
+                {
+                    //选择由维度和索引指定的帧;
+                    image.SelectActiveFrame(frameDimension, i);
+                    var framBitmap = new Bitmap(image.Width, image.Height);
+                    //从指定的Image 创建新的Graphics,并在指定的位置使用原始物理大小绘制指定的 Image;
+                    //将当前激活帧的图形绘制到framBitmap上;
+                    System.Drawing.Graphics.FromImage(framBitmap).DrawImage(image, Point.Empty);
+                    var frameTexture2D = new Texture2D(framBitmap.Width, framBitmap.Height);
+                    for (int x = 0; x < framBitmap.Width; x++)
+                    {
+                        for (int y = 0; y < framBitmap.Height; y++)
+                        {
+                            //获取当前帧图片像素的颜色信息;
+                            System.Drawing.Color sourceColor = framBitmap.GetPixel(x, y);
+                            //设置Texture2D上对应像素的颜色信息;
+                            frameTexture2D.SetPixel(x, framBitmap.Height - 1 - y, new Color32(sourceColor.R, sourceColor.G, sourceColor.B, sourceColor.A));
+                        }
+                    }
+                    frameTexture2D.Apply();
+                    texture2D.Add(frameTexture2D);
+                }
+            }
+            return texture2D;
         }
     }
 }
