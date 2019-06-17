@@ -8,6 +8,7 @@ namespace GKBase
     {
         public const int MenuItemPriorityA = 900;
         public const int MenuItemPriorityB = 100;
+        public const int MenuItemPriorityC = 1500;
     }
 }
 
