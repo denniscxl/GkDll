@@ -198,6 +198,14 @@ namespace GKBase
                 if (!m) return;
 
                 var cls = m.GetClass();
+
+                if(null == cls)
+                {
+                    Debug.Log("The file name does not match the class name.");
+                    return;
+                }
+                    
+
                 if (!cls.IsSubclassOf(typeof(ScriptableObject)))
                 {
                     Debug.Log("class " + cls.Name + " is not base on SCriptableObject");

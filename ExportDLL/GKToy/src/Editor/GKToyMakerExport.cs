@@ -11,7 +11,7 @@ namespace GKToy
 {
     public class GKToyMakerExport
     {
-        [MenuItem("GK/Export/Lua", false, GKEditorConfiger.MenuItemPriorityA)]
+        //[MenuItem("GK/Export/Lua", false, GKEditorConfiger.MenuItemPriorityC)]
         static void _ExportPackageLua()
         {
             string[] path =
@@ -21,7 +21,7 @@ namespace GKToy
             _Export(path);
         }
 
-        [MenuItem("GK/Export/GKToy", false, GKEditorConfiger.MenuItemPriorityA)]
+        //[MenuItem("GK/Export/GKToy", false, GKEditorConfiger.MenuItemPriorityC)]
         static void _ExportPackageGKToy()
         {
             string[] path =

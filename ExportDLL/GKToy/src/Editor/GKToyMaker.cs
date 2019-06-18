@@ -1507,8 +1507,8 @@ namespace GKToy
             if (GUILayout.Button(name))
             {
                 _tmpSelectNodes.Clear();
-                Type t = typeof(GKToyNode);
-                GKToyNode newNode = t.Assembly.CreateInstance(type, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurDataIdx++) }, null, null) as GKToyNode;
+                Assembly assem = GKToyMakerTypeManager.Instance().typeAssemblyDict[type];
+                GKToyNode newNode = assem.CreateInstance(type, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurDataIdx++) }, null, null) as GKToyNode;
                 newNode.className = type;
                 newNode.pos.x = (_contentScrollPos.x + ToyMakerBase._minWidth * 0.5f) / Scale;
                 newNode.pos.y = (_contentScrollPos.y + ToyMakerBase._minHeight * 0.5f) / Scale;
@@ -2741,8 +2741,8 @@ namespace GKToy
             _tmpSelectNodes.Clear();
             Vector2 mousePos = (Vector2)((object[])userData)[0];
             string key = (string)((object[])userData)[1];
-            Type t = typeof(GKToyNode);
-            GKToyNode node = t.Assembly.CreateInstance(key, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
+            Assembly assem = GKToyMakerTypeManager.Instance().typeAssemblyDict[key];
+            GKToyNode node = assem.CreateInstance(key, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
             node.className = key;
             node.pos.x = (mousePos.x) / Scale;
             node.pos.y = (mousePos.y) / Scale;
@@ -3836,8 +3836,8 @@ namespace GKToy
         /// <returns></returns>
         protected GKToyNode _CloneNode(GKToyNode node, int offset)
         {
-            Type t = typeof(GKToyNode);
-            GKToyNode cloneNode = t.Assembly.CreateInstance(node.className, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
+            Assembly assem = GKToyMakerTypeManager.Instance().typeAssemblyDict[node.className];
+            GKToyNode cloneNode = assem.CreateInstance(node.className, true, System.Reflection.BindingFlags.Default, null, new object[] { _GenerateGUID(CurNodeIdx++) }, null, null) as GKToyNode;
             cloneNode.className = node.className;
             cloneNode.pos.x = node.pos.x + node.width * offset;
             cloneNode.pos.y = node.pos.y + node.height * offset;
